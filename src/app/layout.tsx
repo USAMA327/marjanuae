@@ -43,12 +43,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <>
+        <Analytics/>
+        <SpeedInsights/>
     <html lang="en">
       <body
         className={`${poppinsSans.variable} ${poppinsMono.variable} ${elMessiriSans.variable} ${elMessiriMono.variable} antialiased`}
       >
-        <Analytics/>
-        <SpeedInsights/>
+    
         <AuthProvider>
           
       <Cursor />
@@ -59,5 +61,7 @@ export default function RootLayout({
           </AuthProvider>
       </body>
     </html>
+  
+    </>
   );
 }
