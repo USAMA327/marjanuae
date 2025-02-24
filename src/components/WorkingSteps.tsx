@@ -1,3 +1,4 @@
+import { StepProps } from "@/types/types";
 import React from "react";
 
 const steps = [
@@ -27,7 +28,7 @@ const steps = [
   },
 ];
 
-function Step({ icon, title, description, bgColor, textColor, shadow }: any) {
+function Step({ icon, title, description, bgColor, textColor, shadow }: StepProps) {
   return (
     <article className="text-center flex flex-col items-center">
       <div className={`w-28 h-28 flex justify-center items-center rounded-md relative z-10 ${bgColor} ${shadow}`}>

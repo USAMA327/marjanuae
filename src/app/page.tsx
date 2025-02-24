@@ -15,7 +15,7 @@ export default function Home() {
 
           <h1 className="font-bold text-6xl ">
             Find, book, and
-            <br className="hidden lg:block" /> rental car <span className="text-primary relative ">Easily <img className="absolute  right-0" src="/vector.png"/></span>
+            <br className="hidden lg:block" /> rental car <span className="text-primary relative ">Easily <Image alt="Vector" className="absolute  right-0" src="/vector.png"/></span>
           </h1>
           <h3 className="lg:w-[90%] mt-8 text-slate-500 ">
             Choose from a variety of vehicles at best available rates from the

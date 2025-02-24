@@ -41,3 +41,13 @@ export interface OfficeLocation {
     onSwitchToLogin: () => void;
   }
   
+
+  // Define a TypeScript interface for Step component props
+export interface StepProps {
+  icon: string;
+  title: string;
+  description: string;
+  bgColor: string;
+  textColor: string;
+  shadow: string;
+}

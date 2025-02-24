@@ -1,7 +1,6 @@
 'use client';
 
 import { useFormik } from "formik";
-import Link from "next/link";
 import { SignupFormValues, SignupProps } from "@/types/types";
 import { signupValidationSchema } from "@/utils/validatioSchema";
 import { signUpWithEmail } from "@/firebase/firebase";

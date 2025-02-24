@@ -1,7 +1,6 @@
 "use client";
 
 import { useFormik } from "formik";
-import Link from "next/link";
 import { LoginFormValues, LoginProps } from "@/types/types";
 import { loginValidationSchema } from "@/utils/validatioSchema";
 import { signInWithEmail, signInWithGoogle } from "@/firebase/firebase";
@@ -39,15 +38,13 @@ const Login = ({ onSwitchToSignup }: LoginProps) => {
           <p>Sign in with Google</p>
         </button>
 
-    
-                  {/* OR Divider */}
+        {/* OR Divider */}
         <div className="relative flex items-center my-6">
           <hr className="flex-grow border-t border-gray-300" />
           <span className="mx-4 text-gray-500">OR</span>
           <hr className="flex-grow border-t border-gray-300" />
         </div>
 
-              
         <form onSubmit={formik.handleSubmit}>
           <div className="mb-4">
             <input
@@ -89,8 +86,11 @@ const Login = ({ onSwitchToSignup }: LoginProps) => {
           </button>
         </form>
         <p className="text-center text-gray-600">
-          Don't have an account?{" "}
-          <button   onClick={onSwitchToSignup} className="text-primary hover:underline">
+        {"Don't have an account?"}{" "}
+          <button
+            onClick={onSwitchToSignup}
+            className="text-primary hover:underline"
+          >
             Sign up
           </button>
         </p>
