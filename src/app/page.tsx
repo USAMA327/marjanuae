@@ -5,6 +5,7 @@ import WorkingSteps from "@/components/WorkingSteps";
 import BrandSlider from "@/components/BrandSlider";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import BestServices from "@/components/BestServices";
+import Vector from "../../public/vector.png"
 export default function Home() {
   return (
     <>
@@ -15,7 +16,7 @@ export default function Home() {
 
           <h1 className="font-bold text-6xl ">
             Find, book, and
-            <br className="hidden lg:block" /> rental car <span className="text-primary relative ">Easily <Image alt="Vector" className="absolute  right-0" src="/vector.png"/></span>
+              <br className="hidden lg:block" /> rental car <span className="text-primary relative ">Easily <Image alt="Vector" className="absolute  right-0" src={Vector} /></span>
           </h1>
           <h3 className="lg:w-[90%] mt-8 text-slate-500 ">
             Choose from a variety of vehicles at best available rates from the

@@ -6,6 +6,8 @@ import Navbar from "@/components/Navbar";
 import ContactBar from "@/components/ContactBar";
 import Cursor from "@/components/Cursor";
 import { AuthProvider } from "@/context/AuthContext";
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/react"
 const poppinsSans = Poppins({
   variable: "--font-poppins-sans",
   subsets: ["latin"],
@@ -45,6 +47,8 @@ export default function RootLayout({
       <body
         className={`${poppinsSans.variable} ${poppinsMono.variable} ${elMessiriSans.variable} ${elMessiriMono.variable} antialiased`}
       >
+        <Analytics/>
+        <SpeedInsights/>
         <AuthProvider>
           
       <Cursor />

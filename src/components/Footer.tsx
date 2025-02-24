@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import routes from "../data/routes.json";
 import Link from "next/link";
 import Image from "next/image";
+import Logo from "../../public/logo/logo.png"
 export default function Footer() {
 
   const pathname  = usePathname()
@@ -16,7 +17,7 @@ export default function Footer() {
           <Link href={"/"}>
           <div className="flex flex-col gap-2 ">
 
-          <Image src="/logo/logo.png" alt="AL MARJAN" className="h-12 w-12  " />
+              <Image src={Logo} alt="AL MARJAN" className="h-12 w-12  " />
           <h3 className="text-3xl font-serif font-bold text-white">AL MARJAN</h3>
           </div>
           </Link>
