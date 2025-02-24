@@ -1,0 +1,8 @@
+[
+  { "id": 1, "icon": "icon-[cbi--nissan]", "name": "Nissan" },
+  { "id": 2, "icon": "icon-[cbi--mg]", "name": "MG" },
+  { "id": 3, "icon": "icon-[cbi--hyundai]", "name": "Hyundai" },
+  { "id": 4, "icon": "icon-[cbi--kia]", "name": "Kia" },
+  { "id": 5, "icon": "icon-[cbi--mitsubishi]", "name": "Mitsubishi" },
+  { "id": 6, "icon": "icon-[cbi--renault]", "name": "Renault" }
+]

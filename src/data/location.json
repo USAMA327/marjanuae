@@ -1,0 +1,30 @@
+[
+    {
+      "img":"/locations/cityoffice.jpg" , 
+      "name": "Ras Al Khaimah City Office",
+      "openingHours": "Sun-Friday 08:00 - 22:00",
+      "address": "Al Nakheel Ras Al Khaimah",
+      "phone": "+971 50 599 6321",
+      "latitude": 25.7855,
+      "longitude": 55.9432
+    },
+    {
+        "img":"/locations/airport.jpg" , 
+      "name": "Ras Al Khaimah-Airport",
+      "openingHours": "24 hours (Delivery/Collection only)",
+      "address": "Arrival Parking Area, RAK INTL. Airport",
+      "phone": "+971 50 599 6321",
+      "latitude": 25.6133,
+      "longitude": 55.9388
+    },
+    {
+        "img":"/locations/island.jpg" , 
+      "name": "Ras Al Khaimah-Al Marjan Island",
+      "openingHours": "24 Hours (Delivery/Collection Only)",
+      "address": "Al Marjan Island Bay (any hotel)",
+      "phone": "+971 50 599 6321",
+      "latitude": 25.6739,
+      "longitude": 55.7151
+    }
+  ]
+  
