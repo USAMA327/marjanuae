@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, onAuthStateChanged } from "firebase/auth";
+import { User, onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
 
 interface AuthContextType {
@@ -10,6 +10,7 @@ interface AuthContextType {
   isAuthModalOpen: boolean;
   openAuthModal: () => void;
   closeAuthModal: () => void;
+  logout: () => Promise<void>; // Add logout function to the context
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthModalOpen: false,
   openAuthModal: () => {},
   closeAuthModal: () => {},
+  logout: async () => {}, // Default logout function
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -30,6 +32,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Close the auth modal
   const closeAuthModal = () => setIsAuthModalOpen(false);
+
+  // Logout function
+  const logout = async () => {
+    try {
+      await signOut(auth); // Sign out the user
+      setUser(null); // Clear the user state
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   useEffect(() => {
     // Listen for authentication state changes
@@ -49,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, isAuthModalOpen, openAuthModal, closeAuthModal }}
+      value={{ user, loading, isAuthModalOpen, openAuthModal, closeAuthModal, logout }}
     >
       {children}
     </AuthContext.Provider>

@@ -2,12 +2,13 @@
 import AuthModal from "./AuthModal";
 import { useAuth } from "@/context/AuthContext";
 
-const BookNowButton = () => {
+const BookNowButton = ({onClick}:{onClick:()=>void}) => {
     const { user, openAuthModal } = useAuth();
 
     const handleBookNow = async () => {
       if (user) {
         // User is logged in, hit the API
+        onClick()
         console.log("User is logged in. Hitting the API...");
         // Replace with your API call
         // await fetch('/api/book', { method: 'POST' });

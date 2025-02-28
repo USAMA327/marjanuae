@@ -9,7 +9,7 @@
       "longitude": 55.9432
     },
     {
-        "img":"/locations/airport.jpg" , 
+      "img":"/locations/airport.jpg" , 
       "name": "Ras Al Khaimah-Airport",
       "openingHours": "24 hours (Delivery/Collection only)",
       "address": "Arrival Parking Area, RAK INTL. Airport",
@@ -18,7 +18,7 @@
       "longitude": 55.9388
     },
     {
-        "img":"/locations/island.jpg" , 
+      "img":"/locations/island.jpg" , 
       "name": "Ras Al Khaimah-Al Marjan Island",
       "openingHours": "24 Hours (Delivery/Collection Only)",
       "address": "Al Marjan Island Bay (any hotel)",

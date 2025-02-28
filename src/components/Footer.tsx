@@ -5,6 +5,7 @@ import routes from "../data/routes.json";
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "../../public/logo/logo.png"
+import Payment from '../../public/payments/payment.png'
 export default function Footer() {
 
   const pathname  = usePathname()
@@ -34,17 +35,7 @@ export default function Footer() {
             <i className="icon-[mdi--email] text-white text-lg"></i>
             <p className=' hover:text-orange-400 ' >rak@marjanuae.com</p>
           </a>
-             {/* Social Media Icons */}
-
-        <div className="flex mt-5 space-x-6">
-          <a href="#" className="hover:text-blue-500 text-white transition text-2xl">
-            <i className="icon-[ic--baseline-facebook]"></i>
-          </a>
-          <a href="#" className="hover:text-pink-500 text-white transition text-2xl">
-            <i className="icon-[mdi--instagram]"></i>
-          </a>
-       
-      </div>
+         
         </div>
 
         {/* Links Section */}
@@ -63,32 +54,11 @@ export default function Footer() {
           </ul>
         </div>
 
-        <div>
-          <h4 className="text-lg font-semibold text-white">Resources</h4>
-          <ul className="mt-3 space-y-2">
-            {[
-              "Download",
-              "Help Centre",
-              "Guides",
-              "Partner Network",
-              "Cruises",
-              "Developer",
-            ].map((item) => (
-              <li key={item}>
-                <a href="#" className="hover:text-orange-400 transition">
-                  {item}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
+       
         <div>
           <h4 className="text-lg font-semibold text-white">About Marjan</h4>
           <ul className="mt-3 space-y-2">
             {[
-              "Why choose us",
-              "Our Story",
               "Privacy & Policy",
               "FAQ's",
               "Terms and Conditions",
@@ -101,6 +71,26 @@ export default function Footer() {
             ))}
           </ul>
         </div>
+
+        <div>
+             {/* Social Media Icons */}
+             <h4 className="text-lg font-semibold text-white">Follow Us</h4>
+        <div className="flex mt-5 space-x-6">
+          <a href="#" className="hover:text-blue-500 text-white transition text-2xl">
+            <i className="icon-[ic--baseline-facebook]"></i>
+          </a>
+          <a href="#" className="hover:text-pink-500 text-white transition text-2xl">
+            <i className="icon-[mdi--instagram]"></i>
+          </a>
+       
+          </div>
+          <hr className="border-slate-100  my-3" />
+          <div className="flex gap-3">
+<Image src={Payment} alt="payments"/>
+          </div>
+        
+        </div>
+
       </div>
 
    

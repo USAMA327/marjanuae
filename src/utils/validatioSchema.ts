@@ -13,9 +13,11 @@ export const loginValidationSchema = Yup.object<LoginFormValues>({
 
 // Signup form validation schema
 export const signupValidationSchema = Yup.object<SignupFormValues>({
+  displayName: Yup.string().min(3).required().label("Full Name"),
   email: Yup.string()
     .email("Invalid email address")
     .required("Email is required"),
+  phone:Yup.string().required().label("Phone Number"),
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),

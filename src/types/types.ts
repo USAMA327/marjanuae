@@ -11,6 +11,9 @@ export interface Car {
     isTop: boolean;
   }
   
+export interface CarCards extends Car { 
+  onClick: () => void;
+}
 export interface OfficeLocation {
   img: string;
     name: string;
@@ -27,10 +30,12 @@ export interface OfficeLocation {
     password: string;
   }
   
-  export interface SignupFormValues {
+export interface SignupFormValues {
+    displayName: string;
     email: string;
     password: string;
-    confirmPassword: string;
+  confirmPassword: string;
+  phone: string;
   }
 
   export interface LoginProps {

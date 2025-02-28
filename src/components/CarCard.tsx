@@ -19,7 +19,7 @@ const Feature: React.FC<{ icon: string; label: string }> = ({ icon, label }) => 
     return type === "Electric" ? "mdi--ev-station" : "mdi--gas-station";
   };
 
- const CarCard: React.FC<{ car: Car }> = ({ car }) => {
+ const CarCard: React.FC<{ car: Car,onClick:()=>void }> = ({ car,onClick }) => {
     return (
       <div className="bg-white py-6 px-6 rounded-sm shadow-md hover:shadow-lg transition-shadow duration-300">
         {/* Car Image */}
@@ -49,7 +49,7 @@ const Feature: React.FC<{ icon: string; label: string }> = ({ icon, label }) => 
         </div>
   
         {/* Rent Button */}
-        <BookNowButton/>
+        <BookNowButton onClick={onClick}/>
       </div>
     );
  };

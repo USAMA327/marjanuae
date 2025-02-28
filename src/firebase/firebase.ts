@@ -12,6 +12,11 @@ import {
   browserLocalPersistence,
   updateProfile,
 } from "firebase/auth";
+import { 
+  getFirestore, 
+  doc, 
+  setDoc 
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA5y4pwbqRzHZy2ScBfVmMqvg5qvqQZRyU",
@@ -24,6 +29,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(); // Initialize Firestore
 
 // Set persistence (optional, as 'local' is the default)
 setPersistence(auth, browserLocalPersistence)
@@ -69,29 +75,38 @@ export const signInWithEmail = async (
 
 
 
-// Sign up with Email/Password and update profile
+
+
 export const signUpWithEmail = async (
   email: string,
   password: string,
   displayName: string,
+  phone: string
 ): Promise<User | null> => {
   try {
     const auth = getAuth();
     const result: UserCredential = await createUserWithEmailAndPassword(auth, email, password);
 
     if (result.user) {
-      // Update the user's profile with display name and photo URL
-      await updateProfile(result.user, {
-        displayName,
-      });
-    }
+      // Update profile with display name
+      await updateProfile(result.user, { displayName });
 
-    return result.user;
+      // Store phone number in Firestore
+      await setDoc(doc(db, "users", result.user.uid), {
+        displayName,
+        email,
+        phone,
+        createdAt: new Date(),
+      });
+
+      return result.user;
+    }
   } catch (error) {
-    console.error("Email/Password Sign-Up Error:", (error as Error).message);
-    return null;
+    console.error("Sign-Up Error:", (error as Error).message);
   }
+  return null;
 };
+
 
 
 // Sign out
