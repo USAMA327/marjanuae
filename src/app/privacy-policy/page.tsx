@@ -1,8 +1,10 @@
+import Image from 'next/image';
 import React from 'react'
+import Payment from '../../../public/payments/payment.png'
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-gray-100 p-6 flex items-center justify-center">
-      <div className="max-w-4xl w-full bg-white shadow-xl rounded-sm p-8">
+    <div className="min-h-screen bg-gray-100 p-6 flex flex-col pt-32 items-center">
+      <div className=" w-full  rounded-sm p-8">
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold text-gray-800 mt-2">
             Privacy Policy
@@ -20,10 +22,11 @@ export default function PrivacyPolicy() {
           any changes. Modifications will be effective on the day they are
           posted.
         </p>
-        <p className="text-gray-600 leading-relaxed mt-4">
+        <p className="text-gray-600 leading-relaxed my-4">
           We accept all <strong>Master / Visa Credit / Debit cards</strong> in
           AED.
         </p>
+        <Image src={Payment} alt="payments"/>
       </div>
     </div>
   );

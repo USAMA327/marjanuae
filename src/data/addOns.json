@@ -1,0 +1,72 @@
+[
+    {
+        "id": 1,
+        "name": "Additional Driver",
+        "description": "The person named on the booking must be present at the time of vehicle pick-up.",
+        "price": 15,
+        "perDay": false
+    },
+    {
+        "id": 2,
+        "name": "Buy the Full Tank",
+        "description": "Get a full tank and return empty.",
+        "price": 180,
+        "perDay": false
+    },
+    {
+        "id": 3,
+        "name": "Child Seat",
+        "description": "Safety seat for children.",
+        "price": 15,
+        "perDay": false
+    },
+    {
+        "id": 4,
+        "name": "Collection",
+        "description": "Mandatory charge if delivery is required @ Sharjah Airport, Al Marjan Island.",
+        "price": 75,
+        "perDay": false
+    },
+    {
+        "id": 5,
+        "name": "Collision Damage Waiver",
+        "description": "Covers external body damages @ 0 deductible excess. AED 45 per day.",
+        "price": 45,
+        "perDay": true
+    },
+    {
+        "id": 6,
+        "name": "Delivery",
+        "description": "Mandatory charge if delivery is required @ Sharjah Airport, Al Marjan Island.",
+        "price": 75,
+        "perDay": false
+    },
+    {
+        "id": 7,
+        "name": "Express Tolls",
+        "description": "Unlimited toll crossings for AED 25 per day.",
+        "price": 25,
+        "perDay": true
+    },
+    {
+        "id": 8,
+        "name": "GPS-Navigation",
+        "description": "Navigation system for your rental.",
+        "price": 5,
+        "perDay": true
+    },
+    {
+        "id": 9,
+        "name": "Personal Accidental Cover",
+        "description": "PAI covers medical costs & accidental death up to AED 200,000.",
+        "price": 25,
+        "perDay": true
+    },
+    {
+        "id": 10,
+        "name": "Premium Coverage",
+        "description": "Full coverage including interior & exterior damage @ 0 deductible excess. AED 95 per day.",
+        "price": 95,
+        "perDay": true
+    }
+]

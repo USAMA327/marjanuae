@@ -6,6 +6,7 @@ import BrandSlider from "@/components/BrandSlider";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import BestServices from "@/components/BestServices";
 import Vector from "../../public/vector.png"
+import GoogleReviews from "./google-reviews/page";
 export default function Home() {
   return (
     <>
@@ -21,7 +22,9 @@ export default function Home() {
           <h3 className="lg:w-[90%] mt-8 text-slate-500 ">
             Choose from a variety of vehicles at best available rates from the
             only 5-star Google rated company in Ras Al Khaimah UAE
-          </h3>
+            </h3>
+            
+   
         </div>
         <div className="relative   lg:mx-10 w-full lg:w-[60%]    text-primary ">
           <h1 className="text-9xl font-semibold   text-center font-serif  ">DUBAI</h1>
@@ -41,7 +44,8 @@ export default function Home() {
       <WhyChooseUs />
       
       
-      <BestServices/>
+      <BestServices />
+      <GoogleReviews/>
       <BrandSlider />
     </>
   );

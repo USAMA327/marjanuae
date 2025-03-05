@@ -29,7 +29,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(); // Initialize Firestore
+export const db = getFirestore(); // Initialize Firestore
 
 // Set persistence (optional, as 'local' is the default)
 setPersistence(auth, browserLocalPersistence)
@@ -80,27 +80,10 @@ export const signInWithEmail = async (
 export const signUpWithEmail = async (
   email: string,
   password: string,
-  displayName: string,
-  phone: string
 ): Promise<User | null> => {
   try {
     const auth = getAuth();
-    const result: UserCredential = await createUserWithEmailAndPassword(auth, email, password);
-
-    if (result.user) {
-      // Update profile with display name
-      await updateProfile(result.user, { displayName });
-
-      // Store phone number in Firestore
-      await setDoc(doc(db, "users", result.user.uid), {
-        displayName,
-        email,
-        phone,
-        createdAt: new Date(),
-      });
-
-      return result.user;
-    }
+    await createUserWithEmailAndPassword(auth, email, password);
   } catch (error) {
     console.error("Sign-Up Error:", (error as Error).message);
   }

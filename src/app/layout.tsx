@@ -10,6 +10,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
 import { Suspense } from "react";
 import { BookingProvider } from "@/context/BookingContext";
+import { Toaster } from 'react-hot-toast';
 const poppinsSans = Poppins({
   variable: "--font-poppins-sans",
   subsets: ["latin"],
@@ -48,18 +49,22 @@ export default function RootLayout({
     <>
       <Suspense fallback={null}>
       <Analytics />
-      <SpeedInsights />
+        <SpeedInsights />
+   
         <html lang="en">
           <body
             className={`${poppinsSans.variable} ${poppinsMono.variable} ${elMessiriSans.variable} ${elMessiriMono.variable} antialiased`}
           >
             <AuthProvider>
-            <BookingProvider>
-              <Cursor />
+              <BookingProvider>
+           
+                <Cursor />
+                <Toaster/>
               <ContactBar />
               <Navbar />
               {children}
-                <Footer />
+                  <Footer />
+   
                 </BookingProvider>
             </AuthProvider>
           </body>

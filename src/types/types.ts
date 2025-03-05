@@ -1,53 +1,61 @@
 // Define Car Type
 export interface Car {
-    name: string;
-    image: string;
-    type: string;
-    passengers: number;
-    isAuto: boolean;
-    airConditioner: boolean;
-    doors: number;
-    price: number;
-    isTop: boolean;
-  }
-  
-export interface CarCards extends Car { 
+  id: string; // Unique identifier for the car
+  number: string; // Car number (e.g., "LEX 12")
+  brand: "Nissan" | "Toyota" | "MG" | "Hyundai" | "Kia" | "Mitsubishi" | "Renault"; // Allowed brands
+  name: string; // Car name (e.g., "Nissan Kick")
+  category: "Economy" | "Mid size Sedan" | "Crossover" | "SUVs"; // Car category
+  passengers: number; // Number of passengers
+  isAuto: boolean; // Is the car automatic?
+  airConditioner: boolean; // Does the car have air conditioning?
+  doors: number; // Number of doors
+  price: number; // Price in AED
+  image: string; // URL of the car image
+  isTop: boolean; // Is this a top car?
+}
+
+export interface CarCards extends Car {
   onClick: () => void;
 }
 export interface OfficeLocation {
   img: string;
-    name: string;
-    openingHours: string;
-    address: string;
+  name: string;
+  openingHours: string;
+  address: string;
   phone: string;
   latitude: number;
   longitude: number;
-  }
-  
+}
 
-  export interface LoginFormValues {
-    email: string;
-    password: string;
-  }
-  
+export interface LoginFormValues {
+  email: string;
+  password: string;
+}
+
 export interface SignupFormValues {
-    displayName: string;
-    email: string;
-    password: string;
+  email: string;
+  password: string;
   confirmPassword: string;
+}
+
+
+
+export interface PaynowFormValues {
+  displayName: string;
   phone: string;
-  }
+}
 
-  export interface LoginProps {
-    onSwitchToSignup: () => void;
-  }
 
-  export interface SignupProps {
-    onSwitchToLogin: () => void;
-  }
-  
 
-  // Define a TypeScript interface for Step component props
+export interface LoginProps {
+  onSwitchToSignup: () => void;
+}
+
+export interface SignupProps {
+  onSwitchToLogin: () => void;
+}
+
+// Define a TypeScript interface for Step component props
 export interface StepProps {
   icon: string;
   title: string;
@@ -55,4 +63,17 @@ export interface StepProps {
   bgColor: string;
   textColor: string;
   shadow: string;
+}
+
+
+export interface Addon {
+  id: string | number; // Optional because it won't exist when creating a new addon
+  name: string;
+  description: string;
+  type: "boolean" | "number";
+  priceEconomy: number;
+  priceSmallSUV: number;
+  priceStandardSUV: number;
+  price7Seater: number;
+  perDay: boolean; // New field
 }

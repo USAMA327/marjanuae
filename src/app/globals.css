@@ -14,6 +14,16 @@
   }
 }
 
+.rdrDefinedRangesWrapper {
+  display: none;
+}
+
+.react-calendar__tile.booked-date {
+  background-color: #ffcccc; /* Light red background for booked dates */
+  color: #666; /* Gray text for better contrast */
+  cursor: not-allowed; /* Indicate that the date is unavailable */
+}
+
 body {
   cursor: none;
   color:#000000;
@@ -30,7 +40,7 @@ a, button {
   top: 0;
   left: 0;
   pointer-events: none; /* Ensure the cursor doesn't interfere with clicks */
-  z-index: 9999; /* Make sure it's on top of everything */
+  z-index: 99999999999; /* Make sure it's on top of everything */
   transform-origin: center center; /* Rotate around the center */
 }
 

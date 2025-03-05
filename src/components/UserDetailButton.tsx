@@ -2,6 +2,7 @@
 import { useAuth } from "@/context/AuthContext";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
+import Link from "next/link";
 
 const UserDetailButton = () => {
   const { user, loading, logout ,openAuthModal} = useAuth();
@@ -30,12 +31,14 @@ const UserDetailButton = () => {
       {/* Dropdown Menu */}
       {open && (
         <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md border border-gray-200 transition-all duration-300 p-3">
+          <Link onClick={()=>setOpen(!open)} href={"/profile"}>
                   <p className="text-secondary border-b py-1  font-semibold text-sm truncate w-full break-words">
             {user.displayName}
           </p>
           <p className="text-gray-700 border-b py-1 font-semibold text-sm truncate w-full break-words">
             {user.email}
                   </p>
+          </Link>
           <button
             onClick={() => {
               setOpen(false);

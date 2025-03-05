@@ -14,18 +14,14 @@ const Feature: React.FC<{ icon: string; label: string }> = ({ icon, label }) => 
     </div>
   );
   
-  // Utility Function: Get Feature Icon
-  const getFeatureIcon = (type: string): string => {
-    return type === "Electric" ? "mdi--ev-station" : "mdi--gas-station";
-  };
 
- const CarCard: React.FC<{ car: Car,onClick:()=>void }> = ({ car,onClick }) => {
+
+ const CarCard: React.FC<{ car: Car,onClick?:()=>void }> = ({ car,onClick }) => {
     return (
       <div className="bg-white py-6 px-6 rounded-sm shadow-md hover:shadow-lg transition-shadow duration-300">
         {/* Car Image */}
         <div className="relative w-full h-32">
           <Image src={car.image} alt={car.name} fill className="object-contain absolute z-20" />
-          <span className={`absolute text-[#b0b0b0] text-3xl z-10 text-center ${getFeatureIcon(car.type)}`} />
         </div>
   
         {/* Car Name */}
@@ -49,7 +45,11 @@ const Feature: React.FC<{ icon: string; label: string }> = ({ icon, label }) => 
         </div>
   
         {/* Rent Button */}
-        <BookNowButton onClick={onClick}/>
+        <BookNowButton  onClick={() => {
+          if(onClick){
+            onClick()
+          }
+        }}/>
       </div>
     );
  };
