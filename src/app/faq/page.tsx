@@ -53,7 +53,7 @@ const faqs = [
 const FAQ = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col pt-28 items-center">
-      <HelpSection />
+    
 
       <div className="w-full bg-white shadow-lg rounded-lg p-6">
         <h1 className="text-2xl font-semibold text-primary bg-[#1572D310] px-4 py-3 rounded-sm mb-4 text-center">
@@ -82,6 +82,7 @@ const FAQ = () => {
           ))}
         </div>
       </div>
+      <HelpSection />
     </div>
   );
 };

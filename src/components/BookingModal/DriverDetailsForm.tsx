@@ -4,7 +4,6 @@ import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
 import * as Yup from "yup";
 import { useAuth } from "@/context/AuthContext";
-import { Icon } from "@iconify/react";
 
 interface DriverDetailsFormProps {
   onSubmit: (values: any) => void;
@@ -154,7 +153,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
               className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
             />
             <span className="text-sm text-gray-700">
-              Driver's age is above 22 years
+              Drivers age is above 22 years
             </span>
           </label>
           {formik.touched.driverAgeAbove22 && formik.errors.driverAgeAbove22 ? (

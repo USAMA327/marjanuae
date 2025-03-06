@@ -11,6 +11,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { Suspense } from "react";
 import { BookingProvider } from "@/context/BookingContext";
 import { Toaster } from 'react-hot-toast';
+import NoInternet from "@/components/NoInternet";
 const poppinsSans = Poppins({
   variable: "--font-poppins-sans",
   subsets: ["latin"],
@@ -59,7 +60,8 @@ export default function RootLayout({
               <BookingProvider>
            
                 <Cursor />
-                <Toaster/>
+                <Toaster />
+                <NoInternet/>
               <ContactBar />
               <Navbar />
               {children}

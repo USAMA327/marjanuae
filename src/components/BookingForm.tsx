@@ -8,12 +8,12 @@ import CustomSelect from "@/components/CustomSelect"; // Adjust the import path
 import bookingJson from "../data/bookingData.json"; // Adjust the import path
 
 // Define the shape of the location options
-interface LocationOption {
-  label: string;
-  description: string;
-  value: string;
-  price: number;
-}
+// interface LocationOption {
+//   label: string;
+//   description: string;
+//   value: string;
+//   price: number;
+// }
 
 export default function BookingForm() {
   const router = useRouter(); // Use Next.js router

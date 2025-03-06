@@ -77,3 +77,18 @@ export interface Addon {
   price7Seater: number;
   perDay: boolean; // New field
 }
+
+
+export interface Booking {
+  id: string;
+  car: any; // Firestore DocumentReference
+  createdAt: string;
+  dropOffDate: string;
+  dropOffLocation: string;
+  pickUpDate: string;
+  pickUpLocation: string;
+  selectedAddOns: { name: string, price: number }[];
+  totalPrice: number;
+  user: any; // Firestore DocumentReference
+  status: number; // 1: Processing, 2: Active, 3: Completed, 4: Cancelled
+}

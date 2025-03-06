@@ -1,7 +1,7 @@
 import React from "react";
-import Head from "next/head";
 import { Icon } from "@iconify/react";
 import { Metadata } from "next";
+import HelpSection from "@/components/HelpSection";
 
 export const metadata: Metadata = {
   title: 'About Us | AL MARJAN RENT CARS',
@@ -16,21 +16,22 @@ export const metadata: Metadata = {
 };
 export default function AboutUs() {
   return (
-    <>
+   
    
 
-      <div className="min-h-screen bg-gray-100 py-28 px-6">
-        <div className=" bg-white shadow-lg rounded-lg p-8 space-y-8">
-          {/* Header Section */}
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900">About Us</h1>
-            <p className="text-gray-500 text-lg">
-              Your trusted car rental service in Ras Al Khaimah
-            </p>
-          </div>
+    <div className="min-h-screen bg-gray-100 p-6 flex flex-col pt-28 items-center">
+    
+
+      <div className="w-full bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-2xl font-semibold text-primary bg-[#1572D310] px-4 py-3 rounded-sm mb-4 text-center">
+          About Us
+        </h1>
+        <p className="text-gray-600 mb-6 text-center">
+        Your trusted car rental service in Ras Al Khaimah
+        </p>
 
           {/* Introduction */}
-          <p className="text-gray-700 text-lg leading-relaxed">
+          <p className="text-gray-700  text-sm md:text-lg leading-relaxed">
             Welcome to{" "}
             <strong className="text-primary">AL MARJAN RENT CARS</strong>, a
             5-star car rental service provider in Ras Al Khaimah, UAE. With over
@@ -40,18 +41,18 @@ export default function AboutUs() {
 
           {/* Mission Section */}
           <div className="text-center">
-            <h3 className="text-2xl font-semibold text-gray-900  gap-2">
+            <h3 className="text-2xl font-semibold my-2 text-gray-900  gap-2">
               Our Mission
             </h3>
-            <p className="text-gray-700 mt-2 leading-relaxed">
+            <p className="text-gray-700 mt-2  text-sm md:text-lg leading-relaxed">
               At <strong className="text-primary">AL MARJAN RENT CARS</strong>,
               our goal is beyond just renting cars. We strive to understand our
-              customers' needs and deliver complete satisfaction every time.
+              customers needs and deliver complete satisfaction every time.
             </p>
           </div>
 
           {/* Why Choose Us Section */}
-          <div>
+          <div className="my-10">
             <h3 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
               Why Choose Us?
             </h3>
@@ -87,46 +88,24 @@ export default function AboutUs() {
                   <Icon
                     icon={item.icon}
                     className={` bg-black size-10 p-2 bg-secondary rounded-md text-white`}
-                  />{" "}
-                  <p className="text-lg">{item.text}</p>
+                  />
+                  <p className=" text-sm md:text-lg">{item.text}</p>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact Us Section */}
-          <div>
-            <h3 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
-              Contact Us
-            </h3>
-            <div className="mt-4 space-y-2 text-gray-700">
-              {[
-                {
-                  text: "Al Muntasir Road, Opp to Value Bag, Al Nakheel, Ras Al Khaimah, UAE",
-                  icon: "icon-[ph--map-pin-line-thin]",
-                },
-                {
-                  text: "+971-50-599-6321 | +971-56-189-8881",
-                  icon: "icon-[ph--phone-light]",
-                },
-                { text: "rak@marjanuae.com", icon: "icon-[mdi--email]" },
-              ].map((contact, index) => (
-                <p key={index} className="flex items-center gap-2">
-                  <span className={`${contact.icon} text-black size-5`} />{" "}
-                  <strong className="font-medium">{contact.text}</strong>
-                </p>
-              ))}
-            </div>
-          </div>
+       
 
           {/* Closing Message */}
-          <p className="text-center text-lg font-medium text-gray-700">
+          <p className="text-center bg-success-600 border py-2 border-success-700 text-white  text-sm md:text-lg  font-medium ">
             Experience the difference with{" "}
-            <strong className="text-primary">AL MARJAN RENT CARS</strong>—your
+            <strong className="text-white">AL MARJAN RENT CARS</strong>—your
             car rental journey starts with trust and satisfaction.
           </p>
-        </div>
       </div>
-    </>
+      <HelpSection />
+      </div>
+   
   );
 }

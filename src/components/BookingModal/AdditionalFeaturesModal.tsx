@@ -30,16 +30,17 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
   );
   const [selectionRange, setSelectionRange] = useState({
     startDate: new Date(),
-    endDate: new Date(),
+    endDate: new Date(new Date().setDate(new Date().getDate() + 2)), // Two days greater
     key: "selection",
   });
+  
   const [selectedLocation, setSelectedLocation] = useState<string | null>(
     location || ""
   );
 
   const [addons, setAddons] = useState<Addon[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [_loading, setLoading] = useState(true);
+  const [_error, setError] = useState("");
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [timeRange, setTimeRange] = useState({
     pickup: "10:00 AM",
@@ -459,7 +460,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                     >
                       <td className="p-3">
                         <div className="font-semibold">{addon.name}</div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-gray-600 hidden md:block">
                           {addon.description}
                         </div>
                       </td>
@@ -537,42 +538,42 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
 
               <div className="bg-gray-50 p-6 rounded-lg mb-8">
                 <div className="space-y-3">
-                  <div className="flex justify-between">
+                  <div className="flex flex-col md:flex-row justify-between">
                     <span className="text-lg">Location:</span>
-                    <span className="text-lg font-semibold">
+                    <span className="text-lg text-right font-semibold">
                       {selectedLocation}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex flex-col md:flex-row  justify-between">
                     <span className="text-lg">Date Range:</span>
-                    <span className="text-lg font-semibold">
+                    <span className="text-lg text-right font-semibold">
                       {selectionRange.startDate.toDateString()} -{" "}
                       {selectionRange.endDate.toDateString()}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex flex-col md:flex-row  justify-between">
                     <span className="text-lg">Time Range:</span>
-                    <span className="text-lg font-semibold">
+                    <span className="text-lg text-right font-semibold">
                       {timeRange.pickup} - {timeRange.dropoff}
                     </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex flex-col md:flex-row  justify-between">
                     <span className="text-lg">
                       Base Price ({numberOfDays} days):
                     </span>
-                    <span className="text-lg font-semibold">
+                    <span className="text-lg text-right font-semibold">
                       AED {basePrice}
                     </span>
                   </div>
                   {addons
                     .filter((addon) => selectedAddOns[addon.id])
                     .map((addon) => (
-                      <div key={addon.id} className="flex justify-between">
+                      <div key={addon.id} className="flex flex-col md:flex-row  justify-between">
                         <span className="text-lg">
                           {addon.name} (
                           {addon.perDay ? `${numberOfDays} days` : "1 time"}):
                         </span>
-                        <span className="text-lg font-semibold">
+                        <span className="text-lg text-right font-semibold">
                           AED{" "}
                           {addon.perDay
                             ? (car.category === "Economy"
@@ -606,14 +607,14 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                 </div>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex flex-col md:flex-row justify-between gap-4">
                 <button
                   onClick={prevStep}
                   className="bg-gray-600 text-white px-8 py-2 rounded-sm text-lg font-medium hover:bg-gray-700 transition-all duration-300"
                 >
                   Back
                 </button>
-                <div className="flex gap-4">
+                <div className="flex flex-col md:flex-row  gap-4">
                   <button
                     disabled={apiLoader}
                     onClick={() => handleBooking()}
@@ -621,7 +622,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                       apiLoader ? "bg-green-400" : "bg-green-600"
                     } text-white px-8 py-2 rounded-sm text-lg font-medium hover:bg-green-700 transition-all duration-300`}
                   >
-                    {apiLoader ? "Loading..." : "Pay Now"}
+                    {apiLoader ? "Loading..." : "Pay Now (Save upto 25%)"}
                   </button>
                   <button
                     disabled={apiLoader}

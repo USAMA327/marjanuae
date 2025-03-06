@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Logo from "../../public/logo/logo.png"
 import Payment from '../../public/payments/payment.png'
+import { contactDetails } from "@/utils/contact";
 export default function Footer() {
 
   const pathname  = usePathname()
@@ -22,18 +23,18 @@ export default function Footer() {
           <h3 className="text-3xl font-serif font-bold text-white">AL MARJAN</h3>
           </div>
           </Link>
-          <a href={`https://www.google.com/maps?q=25.7862,55.9571`} target="_blank" className="mt-3 text-sm flex items-center gap-2">
+          <a href={contactDetails.location.href} target="_blank" className="mt-3 text-sm flex items-center gap-2">
             <i className="icon-[ph--map-pin-line-thin] text-white text-lg"></i>
            
-            <p className=' hover:text-orange-400 ' > Al Nakheel, Ras al Khaimah</p>
+            <p className=' hover:text-orange-400 ' > {contactDetails.location.shortValue}</p>
           </a>
-          <a  href="tel:+971505996321"  className="mt-2 text-sm flex items-center gap-2">
+          <a  href={contactDetails.phone.href}   className="mt-2 text-sm flex items-center gap-2">
             <i className="icon-[ph--phone-light] text-white text-lg"></i>
-            <p  className=' hover:text-orange-400 '>+971-50-599-6321</p>
+            <p  className=' hover:text-orange-400 '>{contactDetails.phone.value} </p>
           </a>
-          <a href="mailto:rak@marjanuae.com"  className="mt-2 text-sm flex items-center gap-2">
+          <a href={contactDetails.email.href} className="mt-2 text-sm flex items-center gap-2">
             <i className="icon-[mdi--email] text-white text-lg"></i>
-            <p className=' hover:text-orange-400 ' >rak@marjanuae.com</p>
+            <p className=' hover:text-orange-400 ' >{contactDetails.email.value}</p>
           </a>
          
         </div>
@@ -59,15 +60,32 @@ export default function Footer() {
           <h4 className="text-lg font-semibold text-white">About Marjan</h4>
           <ul className="mt-3 space-y-2">
             {[
-              "Privacy & Policy",
-              "FAQ's",
-              "Terms and Conditions",
+            {    
+              "id":1,
+              "title":"Privacy & Policy",
+              "route":"/privacy-policy"
+      
+              },
+              {    
+                "id":1,
+                "title":"FAQ's",
+                "route":"/faq"
+        
+              },
+              {    
+                "id":1,
+                "title":"Terms and Conditions",
+                "route":"/refund-returns"
+        
+            },
             ].map((item) => (
-              <li key={item}>
-                <a href="#" className="hover:text-orange-400 transition">
-                  {item}
-                </a>
-              </li>
+              <li key={item.route}>
+              <Link href={item.route}>
+              <p className={`${pathname === item.route ? "text-orange-400" :""} hover:text-orange-400 transition`}>
+                {item.title}
+              </p>
+              </Link>
+            </li>
             ))}
           </ul>
         </div>
@@ -76,10 +94,10 @@ export default function Footer() {
              {/* Social Media Icons */}
              <h4 className="text-lg font-semibold text-white">Follow Us</h4>
         <div className="flex mt-5 space-x-6">
-          <a href="#" className="hover:text-blue-500 text-white transition text-2xl">
+          <a href={contactDetails.facebook.href} target="_blank" className="hover:text-blue-500 text-white transition text-2xl">
             <i className="icon-[ic--baseline-facebook]"></i>
           </a>
-          <a href="#" className="hover:text-pink-500 text-white transition text-2xl">
+          <a href={contactDetails.instagram.href} target="_blank"  className="hover:text-pink-500 text-white transition text-2xl">
             <i className="icon-[mdi--instagram]"></i>
           </a>
        

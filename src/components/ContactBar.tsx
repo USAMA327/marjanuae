@@ -1,4 +1,5 @@
 'use client'
+import { contactDetails } from '@/utils/contact'
 import React from 'react'
 
 function ContactBar() {
@@ -8,23 +9,23 @@ function ContactBar() {
       <div className='flex space-x-5 text-white'>
         
         
-          <a  href="tel:+971505996321" className=" text-sm flex items-center gap-2">
-            <i className="icon-[ph--phone-light] text-lg"></i>
-            <p  className=' hover:text-orange-400 '>+971-50-599-6321</p>
+          <a  href={contactDetails.phone.href} className=" text-sm flex items-center gap-2">
+            <i className="icon-[ph--phone-light] size-5 "></i>
+          <p className=' hover:text-orange-400   text-xs md:text-sm'>{contactDetails.phone.value}</p>
           </a>
-          <a href="mailto:rak@marjanuae.com" className=" text-sm flex items-center gap-2">
-          <i className="icon-[mdi--email] text-white text-lg"></i>
-          <p className=' hover:text-orange-400 ' >rak@marjanuae.com</p>
+          <a  href={contactDetails.email.href}  className=" text-sm flex items-center gap-2">
+          <i className="icon-[mdi--email] text-white  size-6 "></i>
+          <p className=' hover:text-orange-400  text-xs md:text-sm' >{contactDetails.email.value} </p>
            
           </a>
        </div>
              {/* Social Media Icons */}
 
-        <a href={"https://api.whatsapp.com/send/?phone=971505996321&text=Hi+%2AAL+MORJAN+RENT+CARS%2A%21+I+need+more+info+about+Rental+https%3A%2F%2Fmarjanuae.com%2Ffleet&type=phone_number&app_absent=0"} target="_blank" className="group flex items-center  text-white  space-x-2 cursor-pointer">
-        <span className='icon-[ic--sharp-whatsapp] size-8 md:size-10  text-green-500'></span>
+        <a href={contactDetails.whatsapp.href} target="_blank" className="group flex items-center  text-white  space-x-2 cursor-pointer">
+        <span className='icon-[ic--sharp-whatsapp] size-6 md:size-10  text-green-500'></span>
         <div  className='hidden md:block group-hover:text-green-500'>
           <small>Whatsapp</small>
-          <p className='font-semibold text-sm  group-hover:text-orange-400 '>971505996321</p>
+          <p className='font-semibold text-sm  group-hover:text-orange-400 '>{contactDetails.whatsapp.value}</p>
         </div>
       </a>
 

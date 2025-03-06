@@ -6,7 +6,7 @@ import { Icon } from "@iconify/react";
 import { useSearchParams } from 'next/navigation';
 import AdditionalFeaturesModal from '@/components/BookingModal/AdditionalFeaturesModal';
 import { Car } from '@/types/types';
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, onSnapshot } from "firebase/firestore";
 import { db } from '@/firebase/firebase';
 
 function Fleet() {

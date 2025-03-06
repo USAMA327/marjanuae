@@ -1,3 +1,4 @@
+import { getFirebaseErrorMessage } from "@/utils/firebaseErrorText";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -10,13 +11,11 @@ import {
   signOut,
   setPersistence,
   browserLocalPersistence,
-  updateProfile,
 } from "firebase/auth";
 import { 
   getFirestore, 
-  doc, 
-  setDoc 
 } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA5y4pwbqRzHZy2ScBfVmMqvg5qvqQZRyU",
@@ -50,6 +49,8 @@ export const signInWithGoogle = async (): Promise<User | null> => {
     const result: UserCredential = await signInWithPopup(auth, googleProvider);
     return result.user;
   } catch (error) {
+    const errorMessage = getFirebaseErrorMessage((error as any).code);
+    toast.error(errorMessage);
     console.error("Google Sign-In Error:", (error as Error).message);
     return null;
   }
@@ -68,6 +69,8 @@ export const signInWithEmail = async (
     );
     return result.user;
   } catch (error) {
+    const errorMessage = getFirebaseErrorMessage((error as any).code);
+    toast.error(errorMessage);
     console.error("Email/Password Sign-In Error:", (error as Error).message);
     return null;
   }
@@ -85,6 +88,8 @@ export const signUpWithEmail = async (
     const auth = getAuth();
     await createUserWithEmailAndPassword(auth, email, password);
   } catch (error) {
+    const errorMessage = getFirebaseErrorMessage((error as any).code);
+    toast.error(errorMessage);
     console.error("Sign-Up Error:", (error as Error).message);
   }
   return null;
@@ -98,6 +103,8 @@ export const signOutUser = async (): Promise<void> => {
     await signOut(auth);
     console.log("User signed out successfully");
   } catch (error) {
+    const errorMessage = getFirebaseErrorMessage((error as any).code);
+    toast.error(errorMessage);
     console.error("Sign-Out Error:", (error as Error).message);
   }
 };

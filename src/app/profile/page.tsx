@@ -3,6 +3,7 @@ import Badge from "@/components/Badge";
 import UserMetaCard from "@/components/UserMetaCard";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
+import { Booking } from "@/types/types";
 import { collection, doc, getDocs, query, where } from "firebase/firestore";
 import { redirect } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -20,7 +21,7 @@ function BookingSkeleton() {
 
 function Page() {
   const { user } = useAuth();
-  const [bookings, setBookings] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Redirect to home if user is not authenticated
@@ -37,9 +38,10 @@ function Page() {
       const q = query(bookingsRef, where("user", "==", userRef));
       const querySnapshot = await getDocs(q);
 
-      const bookingsData: any[] = [];
+      const bookingsData: Booking[] = [];
       querySnapshot.forEach((doc) => {
-        bookingsData.push({ id: doc.id, ...doc.data() });
+        const booking = { id: doc.id, ...doc.data() } as Booking; 
+        bookingsData.push(booking);
       });
 
       setBookings(bookingsData);
@@ -60,6 +62,13 @@ function Page() {
   if (!user) {
     return null;
   }
+
+  type AddOn = {
+    id?: string;
+    name: string;
+    price: number;
+    perDay?: boolean;
+  };
 
   return (
     <section className="mt-28 p-10 min-h-screen">
@@ -113,7 +122,7 @@ function Page() {
               <div className="mt-4">
                 <h4 className="font-medium">Selected Add-ons:</h4>
                 <ul className="list-disc pl-6">
-                  {booking.selectedAddOns.map((addOn: any) => (
+                  {booking.selectedAddOns.map((addOn: AddOn) => (
                     <li key={addOn.id} className="text-gray-600">
                       {addOn.name} - AED {addOn.price}{" "}
                       {addOn.perDay ? "/day" : ""}
