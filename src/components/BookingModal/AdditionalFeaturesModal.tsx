@@ -164,58 +164,60 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
           `,
           html: `
           <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Booking Confirmation</title>
-            <style>
-              /* Add the CSS styles from the template here */
-            </style>
-          </head>
-          <body>
-            <div class="email-container">
-              <div class="email-header">
-                <h1>Booking Confirmation</h1>
-              </div>
-              <div class="email-body">
-                <h2>Thank you for your booking!</h2>
-                <p>Your booking has been confirmed. Below are the details of your reservation:</p>
-                <div class="booking-details">
-                  <h3>Your Booking Order</h3>
-                  <ul>
-                    <li><strong>Booking ID:</strong> ${bookingDetails.id}</li>
-                    <li><strong>Car:</strong> ${car.name}</li>
-                    <li><strong>Pickup Date:</strong> ${
-                      bookingDetails.pickUpDate
-                    }</li>
-                    <li><strong>Dropoff Date:</strong> ${
-                      bookingDetails.dropOffDate
-                    }</li>
-                    <li><strong>Pickup Time:</strong> ${
-                      bookingDetails.pickUpTime
-                    }</li>
-                    <li><strong>Dropoff Time:</strong> ${
-                      bookingDetails.dropOffTime
-                    }</li>
-                    <li><strong>Location:</strong> ${selectedLocation}</li>
-                    <li><strong>Total Price:</strong> $${
-                      bookingDetails.totalPrice
-                    }</li>
-                    <li><strong>Selected Add-ons:</strong> ${selectedAddOnsList
-                      .map((addon) => addon.name)
-                      .join(", ")}</li>
-                  </ul>
-                </div>
-                <p>If you have any questions, feel free to contact us.</p>
-              </div>
-              <div class="email-footer">
-                <p>&copy; 2023 Your Company. All rights reserved.</p>
-              </div>
-            </div>
-          </body>
-          </html>
-        `,
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmation</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; line-height: 1.6; margin: 0; padding: 0;">
+  <div style="max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); overflow: hidden;">
+    <div style="background-color: #dbeafe; color: #045A85; padding: 20px; text-align: center;">
+      <h1 style="font-size: 24px; margin: 0;">Booking Confirmation</h1>
+    </div>
+    <div style="padding: 20px;">
+      <h2 style="font-size: 20px; margin-bottom: 15px; color: #045A85; text-align: center;">Thank you for your booking! 🎉</h2>
+      <p style="margin-bottom: 15px;">Your booking has been confirmed. Below are the details of your reservation:</p>
+      <div style="background-color: #dbeafe; color: #045A85; padding: 15px; border-radius: 4px; text-align: center; margin-bottom: 20px; font-weight: bold; border: 1px solid #045A85;">
+        <strong>Booking ID:</strong> ${bookingDetails.id}
+      </div>
+      <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <ul style="list-style: none;">
+          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <strong style="display: inline-block; width: 120px; color: #555;">Car:</strong> ${car.name}
+          </li>
+          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <strong style="display: inline-block; width: 120px; color: #555;">Pickup Date:</strong> ${bookingDetails.pickUpDate}
+          </li>
+          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Date:</strong> ${bookingDetails.dropOffDate}
+          </li>
+          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <strong style="display: inline-block; width: 120px; color: #555;">Pickup Time:</strong> ${bookingDetails.pickUpTime}
+          </li>
+          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Time:</strong> ${bookingDetails.dropOffTime}
+          </li>
+          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <strong style="display: inline-block; width: 120px; color: #555;">Location:</strong> ${selectedLocation}
+          </li>
+          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <strong style="display: inline-block; width: 120px; color: #555;">Total Price:</strong> $${bookingDetails.totalPrice}
+          </li>
+          <li style="padding: 10px 0;">
+            <strong style="display: inline-block; width: 120px; color: #555;">Selected Add-ons:</strong> ${selectedAddOnsList.map((addon) => addon.name).join(", ")}
+          </li>
+        </ul>
+      </div>
+      <p style="text-align: center;">If you have any questions, feel free to contact us.</p>
+    </div>
+    <div style="background-color: #f1f1f1; padding: 10px; text-align: center; font-size: 14px; color: #666;">
+      <p>&copy; 2010 Al Marjan. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+          `,
         }),
       });
 
