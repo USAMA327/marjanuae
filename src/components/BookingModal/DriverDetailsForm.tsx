@@ -27,6 +27,10 @@ const validationSchema = Yup.object({
     [true],
     "You must accept the terms and conditions"
   ),
+  rentalPolicy: Yup.boolean().oneOf(
+    [true],
+    "You must accept the Rental Policy"
+  ),
 });
 
 const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
@@ -44,6 +48,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
       nationality: "",
       driverAgeAbove22: false,
       termsAndConditions: false,
+      rentalPolicy: false,
     },
     validationSchema,
     onSubmit: (values) => {
@@ -66,6 +71,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
             nationality: userData.nationality || "",
             driverAgeAbove22: userData.driverAgeAbove22 || false,
             termsAndConditions: userData.termsAndConditions || false,
+            rentalPolicy: userData.rentalPolicy || false,
           });
         }
       }
@@ -197,7 +203,44 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
                   className="w-5 h-5 text-blue-600 border-gray-300 rounded-md focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-700">
-                  I accept the terms and conditions
+                  I accept the{" "}
+                  <a
+                    href="/refund-returns"
+                    target="_blank"
+                    className="text-secondary cursor-pointer font-semibold"
+                  >
+                    terms and conditions
+                  </a>
+                </span>
+              </>
+            )}
+          </label>
+        </div>
+
+        {/* Terms and Conditions */}
+        <div className="space-y-2">
+          <label className="flex items-center space-x-3">
+            {loading ? (
+              <div className="w-48 h-6 bg-gray-300 animate-pulse rounded-md"></div>
+            ) : (
+              <>
+                <input
+                  type="checkbox"
+                  name="rentalPolicy"
+                  checked={formik.values.rentalPolicy}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-5 h-5 text-blue-600 border-gray-300 rounded-md focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">
+                  I accept the{" "}
+                  <a
+                    href="/refund-returns"
+                    target="_blank"
+                    className="text-secondary cursor-pointer font-semibold"
+                  >
+                    Rental Policy
+                  </a>
                 </span>
               </>
             )}

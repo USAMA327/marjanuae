@@ -7,6 +7,7 @@ import Image from "next/image";
 import Logo from "../../public/logo/logo.png";
 import Payment from "../../public/payments/payment.png";
 import { contactDetails } from "@/utils/contact";
+import { Icon } from "@iconify/react";
 export default function Footer() {
   const pathname = usePathname();
 
@@ -16,9 +17,9 @@ export default function Footer() {
         {/* Logo & Contact */}
         <div>
           <Link href={"/"}>
-            <div className="flex flex-col gap-2 ">
+            <div className="flex flex-col gap-2 group ">
               <Image src={Logo} alt="AL MARJAN" className="h-12 w-12  " />
-              <h3 className="text-3xl font-serif font-bold text-white hover:text-orange-400">
+              <h3 className="text-3xl font-serif font-bold text-white group-hover:text-orange-400">
                 AL MARJAN
               </h3>
             </div>
@@ -26,12 +27,11 @@ export default function Footer() {
           <a
             href={contactDetails.location.href}
             target="_blank"
-            className="mt-3 text-sm flex items-center gap-2"
+            className="mt-3 text-sm flex items-center justify-start gap-2"
           >
-            <i className="icon-[ph--map-pin-line-thin] text-white text-lg"></i>
+            <Icon icon="logos:google-maps" className="text-lg " />
 
-            <p className=" hover:text-orange-400 ">
-              {" "}
+            <p className=" hover:text-orange-400 text-success-500 ">
               {contactDetails.location.shortValue}
             </p>
           </a>
@@ -39,16 +39,16 @@ export default function Footer() {
             href={contactDetails.phone.href}
             className="mt-2 text-sm flex items-center gap-2"
           >
-            <i className="icon-[ph--phone-light] text-white text-lg"></i>
+            <Icon icon="fluent-color:phone-16" className="text-lg -ml-1" />
             <p className=" hover:text-orange-400 ">
-              {contactDetails.phone.value}{" "}
+              {contactDetails.phone.value}
             </p>
           </a>
           <a
             href={contactDetails.email.href}
             className="mt-2 text-sm flex items-center gap-2"
           >
-            <i className="icon-[mdi--email] text-white text-lg"></i>
+            <Icon icon="material-icon-theme:email" className="text-lg -ml-1" />
             <p className=" hover:text-orange-400 ">
               {contactDetails.email.value}
             </p>
@@ -119,14 +119,14 @@ export default function Footer() {
               target="_blank"
               className="hover:text-blue-500 text-white transition text-2xl"
             >
-              <i className="icon-[ic--baseline-facebook]"></i>
+              <i className="icon-[logos--facebook]"></i>
             </a>
             <a
               href={contactDetails.instagram.href}
               target="_blank"
-              className="hover:text-pink-500 text-white transition text-2xl"
+              className="hover:text-pink-500  transition text-2xl"
             >
-              <i className="icon-[mdi--instagram]"></i>
+              <Icon icon="skill-icons:instagram" />
             </a>
           </div>
           <hr className="border-slate-100  my-3" />

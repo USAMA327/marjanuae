@@ -13,6 +13,7 @@ import BookingJson from "../../data/bookingData.json";
 import toast from "react-hot-toast";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
+
 interface ModalProps {
   car?: Car;
   onClose: () => void;
@@ -49,6 +50,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
 
   const [driverDetails, setDriverDetails] = useState<any>(null);
   const [apiLoader, setApiLoader] = useState(false);
+
   if (!car) return null;
 
   const numberOfDays = useMemo(
@@ -103,7 +105,12 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
     [basePrice, addOnsTotal]
   );
 
-  const handleBooking = async () => {
+  const discount = useMemo(() => basePrice * 0.25, [basePrice]); // 25% discount on base price
+  const discountedTotal = useMemo(
+    () => finalTotal - discount,
+    [finalTotal, discount]
+  );
+  const handleBooking = async (isPayNow: boolean) => {
     setApiLoader(true);
     const bookingId = uuidv4();
     const selectedAddOnsList = addons.filter(
@@ -123,6 +130,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
       location: selectedLocation,
       selectedAddOns: selectedAddOnsList,
       totalPrice: finalTotal,
+      isPaid: isPayNow, // Add payment status
       createdAt: new Date().toISOString(),
       status: 1,
     };
@@ -147,8 +155,8 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          to: driverDetails.email, // Send email to the user's email
-          subject: "Your Booking Confirmation", // Email subject
+          to: driverDetails.email,
+          subject: "Your Booking Confirmation",
           text: `Thank you for your booking! Here are your details:
             Booking ID: ${bookingId}
             Car: ${car.name}
@@ -158,80 +166,121 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
             Dropoff Time: ${timeRange.dropoff}
             Location: ${selectedLocation}
             Total Price: AED ${finalTotal}
+            Payment Status: ${isPayNow ? "Paid" : "Pay Later"}
             Selected Add-ons: ${selectedAddOnsList
               .map((addon) => addon.name)
               .join(", ")}
           `,
           html: `
           <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking Confirmation</title>
-</head>
-<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; line-height: 1.6; margin: 0; padding: 0;">
-  <div style="max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); overflow: hidden;">
-    <div style="background-color: #dbeafe; color: #045A85; padding: 20px; text-align: center;">
-      <h1 style="font-size: 24px; margin: 0;">Booking Confirmation</h1>
-    </div>
-    <div style="padding: 20px;">
-      <h2 style="font-size: 20px; margin-bottom: 15px; color: #045A85; text-align: center;">Thank you for your booking! 🎉</h2>
-      <p style="margin-bottom: 15px;">Your booking has been confirmed. Below are the details of your reservation:</p>
-      <div style="background-color: #dbeafe; color: #045A85; padding: 15px; border-radius: 4px; text-align: center; margin-bottom: 20px; font-weight: bold; border: 1px solid #045A85;">
-        <strong>Booking ID:</strong> ${bookingDetails.id}
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; line-height: 1.6; margin: 0; padding: 0;">
+    <div style="max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); overflow: hidden;">
+      <div style="background-color: #dbeafe; color: #045A85; padding: 20px; text-align: center;">
+        <h1 style="font-size: 24px; margin: 0;">Booking Confirmation</h1>
       </div>
-      <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        <ul style="list-style: none;">
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Car:</strong> ${
-              car.name
-            }
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Pickup Date:</strong> ${
-              bookingDetails.pickUpDate
-            }
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Date:</strong> ${
-              bookingDetails.dropOffDate
-            }
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Pickup Time:</strong> ${
-              bookingDetails.pickUpTime
-            }
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Time:</strong> ${
-              bookingDetails.dropOffTime
-            }
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Location:</strong> ${selectedLocation}
-          </li>
-          <li style="padding: 10px 0;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Selected Add-ons:</strong> ${selectedAddOnsList
-              .map((addon) => addon.name)
-              .join(", ")}
-          </li>
-          
+      <div style="padding: 20px;">
+        <h2 style="font-size: 20px; margin-bottom: 15px; color: #045A85; text-align: center;">Thank you for your booking! 🎉</h2>
+        <p style="margin-bottom: 15px;">Your booking has been confirmed. Below are the details of your reservation:</p>
+        <div style="background-color: #dbeafe; color: #045A85; padding: 15px; border-radius: 4px; text-align: center; margin-bottom: 20px; font-weight: bold; border: 1px solid #045A85;">
+          <strong>Booking ID:</strong> ${bookingDetails.id}
+        </div>
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <ul style="list-style: none;">
             <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Total Price:</strong> $${
-              bookingDetails.totalPrice
-            }
-          </li>
-        </ul>
+              <strong style="display: inline-block; width: 120px; color: #555;">Car:</strong> ${
+                car.name
+              }
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+              <strong style="display: inline-block; width: 120px; color: #555;">Pickup Date:</strong> ${
+                bookingDetails.pickUpDate
+              }
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+              <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Date:</strong> ${
+                bookingDetails.dropOffDate
+              }
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+              <strong style="display: inline-block; width: 120px; color: #555;">Pickup Time:</strong> ${
+                bookingDetails.pickUpTime
+              }
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+              <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Time:</strong> ${
+                bookingDetails.dropOffTime
+              }
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+              <strong style="display: inline-block; width: 120px; color: #555;">Location:</strong> ${selectedLocation}
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+              <strong style="display: inline-block; width: 120px; color: #555;">Payment Status:</strong> ${
+                isPayNow ? "Paid" : "Pay Later"
+              }
+            </li>
+            <li style="padding: 10px 0;">
+              <strong style="display: inline-block; width: 120px; color: #555;">Selected Add-ons:</strong>
+              <ul style="list-style: none; margin: 0; padding: 0;">
+                ${selectedAddOnsList
+                  .map((addon) => {
+                    const price =
+                      car.category === "Economy"
+                        ? addon.priceEconomy
+                        : car.category === "SUVs"
+                        ? addon.priceSmallSUV
+                        : car.category === "Mid size Sedan"
+                        ? addon.priceStandardSUV
+                        : addon.price7Seater;
+
+                    const totalPrice = addon.perDay
+                      ? price * numberOfDays * (selectedAddOns[addon.id] || 1)
+                      : price * (selectedAddOns[addon.id] || 1);
+
+                    return `
+                      <li style="padding: 5px 0;">
+                        ${addon.name} (
+                        ${
+                          addon.perDay
+                            ? `${numberOfDays} days * ${price} * ${
+                                selectedAddOns[addon.id] || 1
+                              }`
+                            : `1 time * ${price}`
+                        }
+                        ): AED ${totalPrice}
+                      </li>
+                    `;
+                  })
+                  .join("")}
+              </ul>
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+              <strong style="display: inline-block; width: 120px; color: #555;">Total Price:</strong> AED ${
+                bookingDetails.totalPrice
+              }
+            </li>
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+              <strong style="display: inline-block; width: 120px; color: #555;">Discount:</strong> -AED ${discount}
+            </li>
+            <li style="padding: 10px 0;">
+              <strong style="display: inline-block; width: 120px; color: #555;">Discounted Total:</strong> AED ${discountedTotal}
+            </li>
+          </ul>
+        </div>
+        <p style="text-align: center;">If you have any questions, feel free to contact us.</p>
       </div>
-      <p style="text-align: center;">If you have any questions, feel free to contact us.</p>
+      <div style="background-color: #f1f1f1; padding: 10px; text-align: center; font-size: 14px; color: #666;">
+        <p>&copy; 2010 Al Marjan. All rights reserved.</p>
+      </div>
     </div>
-    <div style="background-color: #f1f1f1; padding: 10px; text-align: center; font-size: 14px; color: #666;">
-      <p>&copy; 2010 Al Marjan. All rights reserved.</p>
-    </div>
-  </div>
-</body>
-</html>
+  </body>
+  </html>
           `,
         }),
       });
@@ -359,14 +408,14 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                 }`}
               >
                 <Icon
-                  icon="mdi:plus-box"
+                  icon="mdi:account"
                   className={`w-6 h-6 ${
                     currentStep === 2 || currentStep > 2
                       ? "text-white"
                       : "text-gray-600"
                   }`}
                 />
-                <span className="font-semibold">Add-ons</span>
+                <span className="font-semibold">Driver Details</span>
               </div>
 
               <div
@@ -383,14 +432,14 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                 }`}
               >
                 <Icon
-                  icon="mdi:account"
+                  icon="mdi:plus-box"
                   className={`w-6 h-6 ${
                     currentStep === 3 || currentStep > 3
                       ? "text-white"
                       : "text-gray-600"
                   }`}
                 />
-                <span className="font-semibold">Driver Details</span>
+                <span className="font-semibold">Add-ons</span>
               </div>
 
               <div
@@ -448,10 +497,19 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
               </div>
               <div className="flex justify-end mt-8">
                 <button
-                  disabled={!selectedLocation || !selectionRange || !timeRange}
+                  disabled={
+                    !selectedLocation ||
+                    !selectionRange ||
+                    !timeRange.pickup ||
+                    !timeRange.dropoff
+                  }
                   onClick={nextStep}
                   className={`${
-                    !selectedLocation || !selectionRange || !timeRange
+                    !selectedLocation ||
+                    !selectionRange.startDate ||
+                    !selectionRange.endDate ||
+                    !timeRange.pickup ||
+                    !timeRange.dropoff
                       ? "bg-gray-400"
                       : "bg-green-600"
                   }  hover:bg-green-700 text-white px-8 py-2 rounded-sm text-lg font-medium transition-all duration-300`}
@@ -461,8 +519,19 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
               </div>
             </div>
           )}
-
           {currentStep === 2 && (
+            <div>
+              <h3 className="text-xl font-bold mb-4">Driver Details</h3>
+              <DriverDetailsForm
+                prevStep={prevStep}
+                onSubmit={(values) => {
+                  setDriverDetails(values);
+                  nextStep();
+                }}
+              />
+            </div>
+          )}
+          {currentStep === 3 && (
             <div>
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -523,9 +592,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                   ))}
                 </tbody>
               </table>
-              <h3 className="text-sm cursor-pointer text-right font-bold my-2 text-error-500">
-                Rental Policies
-              </h3>
+
               <div className="flex justify-between mt-8">
                 <button
                   onClick={prevStep}
@@ -540,19 +607,6 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                   Next
                 </button>
               </div>
-            </div>
-          )}
-
-          {currentStep === 3 && (
-            <div>
-              <h3 className="text-xl font-bold mb-4">Driver Details</h3>
-              <DriverDetailsForm
-                prevStep={prevStep}
-                onSubmit={(values) => {
-                  setDriverDetails(values);
-                  nextStep();
-                }}
-              />
             </div>
           )}
 
@@ -598,45 +652,53 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                   </div>
                   {addons
                     .filter((addon) => selectedAddOns[addon.id])
-                    .map((addon) => (
-                      <div
-                        key={addon.id}
-                        className="flex flex-col md:flex-row  justify-between"
-                      >
-                        <span className="text-lg">
-                          {addon.name} (
-                          {addon.perDay ? `${numberOfDays} days` : "1 time"}):
-                        </span>
-                        <span className="text-lg text-right font-semibold">
-                          AED{" "}
-                          {addon.perDay
-                            ? (car.category === "Economy"
-                                ? addon.priceEconomy
-                                : car.category === "SUVs"
-                                ? addon.priceSmallSUV
-                                : car.category === "Mid size Sedan"
-                                ? addon.priceStandardSUV
-                                : addon.price7Seater) *
-                              numberOfDays *
-                              (addon.type === "number"
-                                ? selectedAddOns[addon.id]
-                                : 1)
-                            : (car.category === "Economy"
-                                ? addon.priceEconomy
-                                : car.category === "SUVs"
-                                ? addon.priceSmallSUV
-                                : car.category === "Mid size Sedan"
-                                ? addon.priceStandardSUV
-                                : addon.price7Seater) *
-                              (addon.type === "number"
-                                ? selectedAddOns[addon.id]
-                                : 1)}
-                        </span>
-                      </div>
-                    ))}
+                    .map((addon) => {
+                      const price =
+                        car.category === "Economy"
+                          ? addon.priceEconomy
+                          : car.category === "SUVs"
+                          ? addon.priceSmallSUV
+                          : car.category === "Mid size Sedan"
+                          ? addon.priceStandardSUV
+                          : addon.price7Seater;
+
+                      const totalPrice = addon.perDay
+                        ? price * numberOfDays * (selectedAddOns[addon.id] || 1)
+                        : price * (selectedAddOns[addon.id] || 1);
+
+                      return (
+                        <div
+                          key={addon.id}
+                          className="flex flex-col md:flex-row justify-between"
+                        >
+                          <span className="text-lg">
+                            {addon.name} (
+                            {addon.perDay
+                              ? `${numberOfDays} days X ${price} AED X ${
+                                  selectedAddOns[addon.id] || 1
+                                }`
+                              : `1 time X ${price}`}
+                            ):
+                          </span>
+                          <span className="text-lg text-right font-semibold">
+                            AED {totalPrice}
+                          </span>
+                        </div>
+                      );
+                    })}
                   <div className="flex justify-between border-t pt-3">
                     <span className="text-xl font-bold">Total Price:</span>
                     <span className="text-xl font-bold">AED {finalTotal}</span>
+                  </div>
+                  <div className="flex justify-between border-t pt-3">
+                    <span className="text-xl font-bold">Discount:</span>
+                    <span className="text-xl font-bold">-AED {discount}</span>
+                  </div>
+                  <div className="flex justify-between border-t pt-3">
+                    <span className="text-xl font-bold">Discounted Total:</span>
+                    <span className="text-xl font-bold">
+                      AED {discountedTotal}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -651,16 +713,18 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                 <div className="flex flex-col md:flex-row  gap-4">
                   <button
                     disabled={apiLoader}
-                    onClick={() => handleBooking()}
+                    onClick={() => handleBooking(true)}
                     className={`${
                       apiLoader ? "bg-green-400" : "bg-green-600"
                     } text-white px-8 py-2 rounded-sm text-lg font-medium hover:bg-green-700 transition-all duration-300`}
                   >
-                    {apiLoader ? "Loading..." : "Pay Now (Save upto 25%)"}
+                    {apiLoader
+                      ? "Loading..."
+                      : `Pay Now (Save AED ${discount})`}
                   </button>
                   <button
                     disabled={apiLoader}
-                    onClick={() => handleBooking()} // You can add a different handler for Pay Later if needed
+                    onClick={() => handleBooking(false)} // You can add a different handler for Pay Later if needed
                     className={`${
                       apiLoader ? "bg-blue-400" : "border border-blue-600"
                     } text-blue-600 px-8 py-2 rounded-sm text-lg font-medium hover:bg-blue-700 hover:text-white transition-all duration-300`}

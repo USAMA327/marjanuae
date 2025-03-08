@@ -18,7 +18,7 @@ export default function BookingForm() {
     samePickupDropoff: boolean;
     freeOfCost: boolean;
   }>({
-    samePickupDropoff: false,
+    samePickupDropoff: true,
     freeOfCost: false,
   });
 
@@ -91,11 +91,9 @@ export default function BookingForm() {
                 onChange={() => handleFilterChange("samePickupDropoff")}
                 className="form-checkbox h-5 w-5 text-primary rounded focus:ring-primary"
               />
-              <span className="text-sm text-gray-700">
-                Same Pickup & Dropoff
-              </span>
+              <span className="text-sm text-gray-700">Pickup & Dropoff</span>
             </label>
-            <label className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+            {/* <label className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
               <input
                 type="checkbox"
                 checked={filters.freeOfCost}
@@ -105,13 +103,13 @@ export default function BookingForm() {
               <span className="text-sm text-gray-700">
                 Free Pickup & Dropoff
               </span>
-            </label>
+            </label> */}
           </div>
         </div>
 
         {/* Location Input with CustomSelect */}
-        <div className="mb-3 flex flex-col md:flex-row gap-2">
-          <div className="flex md:w-[90%]  gap-3 items-center bg-gray-50  rounded-lg hover:bg-gray-100 transition-colors">
+        <div className="mb-3 flex flex-col md:flex-row gap-2 bg-gray-50  rounded-lg hover:bg-gray-100 transition-colors px-2">
+          <div className="flex md:w-[90%]  gap-3 items-center ">
             <span className="icon-[proicons--location] size-10 text-[#747474]"></span>
             <div className="w-full">
               <CustomSelect
@@ -130,7 +128,7 @@ export default function BookingForm() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full md:w-[10%] py-3 my-2 bg-primary  rounded-lg text-white font-semibold hover:bg-secondary transition-colors transform "
+            className="w-full md:w-[10%] py-3 my-2 bg-primary  rounded-md text-white font-semibold hover:bg-secondary transition-colors transform "
           >
             <h4 className="text-lg sm:text-xl">Submit</h4>
           </button>
