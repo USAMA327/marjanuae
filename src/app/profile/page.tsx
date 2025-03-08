@@ -40,7 +40,7 @@ function Page() {
 
       const bookingsData: Booking[] = [];
       querySnapshot.forEach((doc) => {
-        const booking = { id: doc.id, ...doc.data() } as Booking; 
+        const booking = { id: doc.id, ...doc.data() } as Booking;
         bookingsData.push(booking);
       });
 
@@ -88,13 +88,15 @@ function Page() {
               className="mb-6 p-6 border rounded-lg shadow-sm"
             >
               <h3 className="text-xl font-semibold">
-                Booking ID: {booking.id}{" "}
+                ID: {booking.id}{" "}
                 <Badge
-                  className={` ${booking.status == 1
-                    ? "border shadow-primary border-primary"
-                    : booking.status == 2
-                    ? "border border-success shadow-success-500"
-                    : "border border-error shadow-error-500"}`}
+                  className={` ${
+                    booking.status == 1
+                      ? "border shadow-primary border-primary"
+                      : booking.status == 2
+                      ? "border border-success shadow-success-500"
+                      : "border border-error shadow-error-500"
+                  }`}
                   color={
                     booking.status == 1
                       ? "primary"
@@ -119,17 +121,19 @@ function Page() {
               <p className="text-gray-600">
                 Dropoff: {booking.dropOffLocation} on {booking.dropOffDate}
               </p>
-              <div className="mt-4">
-                <h4 className="font-medium">Selected Add-ons:</h4>
-                <ul className="list-disc pl-6">
-                  {booking.selectedAddOns.map((addOn: AddOn) => (
-                    <li key={addOn.id} className="text-gray-600">
-                      {addOn.name} - AED {addOn.price}{" "}
-                      {addOn.perDay ? "/day" : ""}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {booking.selectedAddOns.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="font-medium">Selected Add-ons:</h4>
+                  <ul className="list-disc pl-6">
+                    {booking.selectedAddOns.map((addOn: AddOn) => (
+                      <li key={addOn.id} className="text-gray-600">
+                        {addOn.name} - AED {addOn.price}{" "}
+                        {addOn.perDay ? "/day" : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           ))
         ) : (

@@ -1,25 +1,31 @@
-'use client';
+"use client";
 import React, { useState, useEffect } from "react";
 import { Car } from "@/types/types";
 import CarCard from "./CarCard";
 import Link from "next/link";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
+import AdditionalFeaturesModal from "./BookingModal/AdditionalFeaturesModal";
+import FancyButton from "./FancyButton";
 
 // Component: Best Services Section
 const BestServices: React.FC = () => {
   const [loading, setLoading] = useState(true); // State to manage loading
   const [topCars, setTopCars] = useState<Car[]>([]); // State to store top cars
-
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<Car | undefined>(undefined);
   // Function to listen for real-time updates on top cars
   useEffect(() => {
     const q = query(collection(db, "cars"), where("isTop", "==", true));
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const topCars = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }) as Car); // Cast to Car type
+      const topCars = querySnapshot.docs.map(
+        (doc) =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          } as Car)
+      ); // Cast to Car type
       setTopCars(topCars);
       setLoading(false); // Set loading to false after data is fetched
     });
@@ -35,6 +41,16 @@ const BestServices: React.FC = () => {
       <div className="mt-2 bg-gray-200 h-4 w-1/2 rounded"></div>
     </div>
   );
+
+  const openModal = (car: Car | undefined) => {
+    setSelectedCar(car);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedCar(undefined);
+  };
 
   return (
     <section className="text-black bg-blend-soft-light pb-32 flex flex-col items-center justify-center">
@@ -58,15 +74,26 @@ const BestServices: React.FC = () => {
               </div>
             ))
           : // Show actual car cards after loading
-            topCars.map((car) => <CarCard key={car.id} car={car} />)}
+            topCars.map((car) => (
+              <CarCard key={car.id} car={car} onClick={() => openModal(car)} />
+            ))}
       </div>
 
       {/* Explore All Button */}
       <Link href={"/fleet"}>
-        <button className="mt-10 px-10 bg-white text-primary hover:text-white border-2 border-primary py-3 rounded-sm hover:bg-secondary transition-colors duration-300">
+        <FancyButton className="mt-10 px-10" variant="outline" color="primary">
           Explore All
-        </button>
+        </FancyButton>
       </Link>
+
+      {/* Additional Features Modal */}
+      {modalOpen && (
+        <AdditionalFeaturesModal
+          location={""}
+          car={selectedCar}
+          onClose={closeModal}
+        />
+      )}
     </section>
   );
 };

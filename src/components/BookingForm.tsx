@@ -3,17 +3,9 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useRouter } from "next/navigation"; // Use Next.js navigation
-import CustomSelect from "@/components/CustomSelect"; // Adjust the import path
-import bookingJson from "../data/bookingData.json"; // Adjust the import path
-
-// Define the shape of the location options
-// interface LocationOption {
-//   label: string;
-//   description: string;
-//   value: string;
-//   price: number;
-// }
+import { useRouter } from "next/navigation";
+import CustomSelect from "@/components/CustomSelect";
+import bookingJson from "../data/bookingData.json";
 
 export default function BookingForm() {
   const router = useRouter(); // Use Next.js router
@@ -99,7 +91,9 @@ export default function BookingForm() {
                 onChange={() => handleFilterChange("samePickupDropoff")}
                 className="form-checkbox h-5 w-5 text-primary rounded focus:ring-primary"
               />
-              <span className="text-sm text-gray-700">Same Pickup & Dropoff</span>
+              <span className="text-sm text-gray-700">
+                Same Pickup & Dropoff
+              </span>
             </label>
             <label className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
               <input
@@ -108,7 +102,9 @@ export default function BookingForm() {
                 onChange={() => handleFilterChange("freeOfCost")}
                 className="form-checkbox h-5 w-5 text-primary rounded focus:ring-primary"
               />
-              <span className="text-sm text-gray-700">Free Pickup & Dropoff</span>
+              <span className="text-sm text-gray-700">
+                Free Pickup & Dropoff
+              </span>
             </label>
           </div>
         </div>
@@ -131,16 +127,14 @@ export default function BookingForm() {
               />
             </div>
           </div>
-            {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full md:w-[10%] py-3 my-2 bg-primary  rounded-lg text-white font-semibold hover:bg-secondary transition-colors transform "
-        >
-          <h4 className="text-lg sm:text-xl">Submit</h4>
-        </button>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full md:w-[10%] py-3 my-2 bg-primary  rounded-lg text-white font-semibold hover:bg-secondary transition-colors transform "
+          >
+            <h4 className="text-lg sm:text-xl">Submit</h4>
+          </button>
         </div>
-
-      
       </form>
     </div>
   );

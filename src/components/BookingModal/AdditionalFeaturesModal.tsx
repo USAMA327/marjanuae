@@ -33,7 +33,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
     endDate: new Date(new Date().setDate(new Date().getDate() + 2)), // Two days greater
     key: "selection",
   });
-  
+
   const [selectedLocation, setSelectedLocation] = useState<string | null>(
     location || ""
   );
@@ -43,8 +43,8 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
   const [_error, setError] = useState("");
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [timeRange, setTimeRange] = useState({
-    pickup: "10:00 AM",
-    dropoff: "10:00 AM",
+    pickup: "",
+    dropoff: "",
   });
 
   const [driverDetails, setDriverDetails] = useState<any>(null);
@@ -184,28 +184,43 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
       <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
         <ul style="list-style: none;">
           <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Car:</strong> ${car.name}
+            <strong style="display: inline-block; width: 120px; color: #555;">Car:</strong> ${
+              car.name
+            }
           </li>
           <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Pickup Date:</strong> ${bookingDetails.pickUpDate}
+            <strong style="display: inline-block; width: 120px; color: #555;">Pickup Date:</strong> ${
+              bookingDetails.pickUpDate
+            }
           </li>
           <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Date:</strong> ${bookingDetails.dropOffDate}
+            <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Date:</strong> ${
+              bookingDetails.dropOffDate
+            }
           </li>
           <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Pickup Time:</strong> ${bookingDetails.pickUpTime}
+            <strong style="display: inline-block; width: 120px; color: #555;">Pickup Time:</strong> ${
+              bookingDetails.pickUpTime
+            }
           </li>
           <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Time:</strong> ${bookingDetails.dropOffTime}
+            <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Time:</strong> ${
+              bookingDetails.dropOffTime
+            }
           </li>
           <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
             <strong style="display: inline-block; width: 120px; color: #555;">Location:</strong> ${selectedLocation}
           </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Total Price:</strong> $${bookingDetails.totalPrice}
-          </li>
           <li style="padding: 10px 0;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Selected Add-ons:</strong> ${selectedAddOnsList.map((addon) => addon.name).join(", ")}
+            <strong style="display: inline-block; width: 120px; color: #555;">Selected Add-ons:</strong> ${selectedAddOnsList
+              .map((addon) => addon.name)
+              .join(", ")}
+          </li>
+          
+            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <strong style="display: inline-block; width: 120px; color: #555;">Total Price:</strong> $${
+              bookingDetails.totalPrice
+            }
           </li>
         </ul>
       </div>
@@ -274,7 +289,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white w-screen h-screen md:w-[90%] md:h-[90%] lg:w-[80%] lg:h-[80%] xl:w-[70%] xl:h-[70%] rounded-lg shadow-lg relative overflow-y-auto">
+      <div className="bg-white w-screen h-screen md:w-[95%] md:h-[95%] lg:w-[85%] lg:h-[85%] xl:w-[75%] xl:h-[75%] rounded-lg shadow-lg relative overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all duration-300"
@@ -433,8 +448,13 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
               </div>
               <div className="flex justify-end mt-8">
                 <button
+                  disabled={!selectedLocation || !selectionRange || !timeRange}
                   onClick={nextStep}
-                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-2 rounded-sm text-lg font-medium transition-all duration-300"
+                  className={`${
+                    !selectedLocation || !selectionRange || !timeRange
+                      ? "bg-gray-400"
+                      : "bg-green-600"
+                  }  hover:bg-green-700 text-white px-8 py-2 rounded-sm text-lg font-medium transition-all duration-300`}
                 >
                   Next
                 </button>
@@ -444,7 +464,6 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
 
           {currentStep === 2 && (
             <div>
-              <h3 className="text-xl font-bold mb-4">Additional Features</h3>
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-gray-100">
@@ -504,6 +523,9 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                   ))}
                 </tbody>
               </table>
+              <h3 className="text-sm cursor-pointer text-right font-bold my-2 text-error-500">
+                Rental Policies
+              </h3>
               <div className="flex justify-between mt-8">
                 <button
                   onClick={prevStep}
@@ -541,6 +563,13 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
               <div className="bg-gray-50 p-6 rounded-lg mb-8">
                 <div className="space-y-3">
                   <div className="flex flex-col md:flex-row justify-between">
+                    <span className="text-lg">Car:</span>
+                    <span className="text-lg text-right font-semibold">
+                      {car.name} ({car.brand})
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row justify-between">
                     <span className="text-lg">Location:</span>
                     <span className="text-lg text-right font-semibold">
                       {selectedLocation}
@@ -570,7 +599,10 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                   {addons
                     .filter((addon) => selectedAddOns[addon.id])
                     .map((addon) => (
-                      <div key={addon.id} className="flex flex-col md:flex-row  justify-between">
+                      <div
+                        key={addon.id}
+                        className="flex flex-col md:flex-row  justify-between"
+                      >
                         <span className="text-lg">
                           {addon.name} (
                           {addon.perDay ? `${numberOfDays} days` : "1 time"}):
@@ -633,7 +665,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                       apiLoader ? "bg-blue-400" : "border border-blue-600"
                     } text-blue-600 px-8 py-2 rounded-sm text-lg font-medium hover:bg-blue-700 hover:text-white transition-all duration-300`}
                   >
-                    {apiLoader ? "Loading..." : "Pay Later"}
+                    {apiLoader ? "Loading..." : "Book now & Pay Later"}
                   </button>
                 </div>
               </div>

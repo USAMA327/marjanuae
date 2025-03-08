@@ -1,8 +1,8 @@
-'use client'
+"use client";
 import React, { useState, useEffect } from "react";
 
 export default function NoInternet() {
-  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [isOffline, setIsOffline] = useState<boolean>();
 
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
@@ -17,12 +17,10 @@ export default function NoInternet() {
     };
   }, []);
 
-if(!isOffline) return null 
+  if (!isOffline) return null;
   return (
     <div className="bg-error-300 text-center border border-0.5 text-error-800 border-error-600 py-2s overflow-hidden relative">
-        <div className=" ">
-          No Internet Connection! Please try to reconnect.
-        </div>
+      <div className=" ">No Internet Connection! Please try to reconnect.</div>
     </div>
   );
 }

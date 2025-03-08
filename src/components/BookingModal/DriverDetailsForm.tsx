@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
 import * as Yup from "yup";
 import { useAuth } from "@/context/AuthContext";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/firebase/firebase";
 
 interface DriverDetailsFormProps {
   onSubmit: (values: any) => void;
@@ -32,12 +34,13 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
   prevStep,
 }) => {
   const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
 
   const formik = useFormik({
     initialValues: {
-      displayName: user?.displayName ? user.displayName : "",
-      contactNumber: user?.phoneNumber ? user.phoneNumber : "",
-      email: user?.email ? user.email : "",
+      displayName: user?.displayName || "",
+      contactNumber: "",
+      email: user?.email || "",
       nationality: "",
       driverAgeAbove22: false,
       termsAndConditions: false,
@@ -48,6 +51,30 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
     },
   });
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user?.uid) {
+        const userDoc = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userDoc);
+
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          formik.setValues({
+            displayName: userData.displayName || user.displayName,
+            contactNumber: userData.phone || "",
+            email: userData.email || user.email,
+            nationality: userData.nationality || "",
+            driverAgeAbove22: userData.driverAgeAbove22 || false,
+            termsAndConditions: userData.termsAndConditions || false,
+          });
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchUserData();
+  }, [user?.uid]);
+
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -56,7 +83,9 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
           <label className="block text-sm font-medium text-gray-700">
             First Name
           </label>
-          <div className="relative">
+          {loading ? (
+            <div className="w-full h-12 bg-gray-300 animate-pulse rounded-md"></div>
+          ) : (
             <input
               type="text"
               name="displayName"
@@ -64,14 +93,9 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
               value={formik.values.displayName}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className="w-full px-4  py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
-          </div>
-          {formik.touched.displayName && formik.errors.displayName ? (
-            <div className="text-red-500 text-sm">
-              {formik.errors.displayName}
-            </div>
-          ) : null}
+          )}
         </div>
 
         {/* Contact Number */}
@@ -79,21 +103,18 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
           <label className="block text-sm font-medium text-gray-700">
             Contact Number
           </label>
-          <div className="relative">
+          {loading ? (
+            <div className="w-full h-12 bg-gray-300 animate-pulse rounded-md"></div>
+          ) : (
             <PhoneInput
-              inputClassName="w-full pl-10  py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              inputClassName="w-full pl-10 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
               name="contactNumber"
               defaultCountry="ae"
               value={formik.values.contactNumber}
               onChange={(phone) => formik.setFieldValue("contactNumber", phone)}
               onBlur={formik.handleBlur}
             />
-          </div>
-          {formik.touched.contactNumber && formik.errors.contactNumber ? (
-            <div className="text-red-500 text-sm">
-              {formik.errors.contactNumber}
-            </div>
-          ) : null}
+          )}
         </div>
 
         {/* Email Address */}
@@ -101,7 +122,9 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
           <label className="block text-sm font-medium text-gray-700">
             Email Address
           </label>
-          <div className="relative">
+          {loading ? (
+            <div className="w-full h-12 bg-gray-300 animate-pulse rounded-md"></div>
+          ) : (
             <input
               disabled
               type="email"
@@ -110,12 +133,9 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-gray-100"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-gray-100"
             />
-          </div>
-          {formik.touched.email && formik.errors.email ? (
-            <div className="text-red-500 text-sm">{formik.errors.email}</div>
-          ) : null}
+          )}
         </div>
 
         {/* Nationality */}
@@ -123,72 +143,69 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
           <label className="block text-sm font-medium text-gray-700">
             Nationality
           </label>
-
-          <input
-            type="text"
-            name="nationality"
-            placeholder="Enter Nationality"
-            value={formik.values.nationality}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            className="w-full px-4  py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          />
-
-          {formik.touched.nationality && formik.errors.nationality ? (
-            <div className="text-red-500 text-sm">
-              {formik.errors.nationality}
-            </div>
-          ) : null}
+          {loading ? (
+            <div className="w-full h-12 bg-gray-300 animate-pulse rounded-md"></div>
+          ) : (
+            <input
+              type="text"
+              name="nationality"
+              placeholder="Enter Nationality"
+              value={formik.values.nationality}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            />
+          )}
         </div>
 
         {/* Driver's Age Above 22 */}
         <div className="space-y-2">
           <label className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              name="driverAgeAbove22"
-              checked={formik.values.driverAgeAbove22}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <span className="text-sm text-gray-700">
-              Drivers age is above 22 years
-            </span>
+            {loading ? (
+              <div className="w-48 h-6 bg-gray-300 animate-pulse rounded-md"></div>
+            ) : (
+              <>
+                <input
+                  type="checkbox"
+                  name="driverAgeAbove22"
+                  checked={formik.values.driverAgeAbove22}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-5 h-5 text-blue-600 border-gray-300 rounded-md focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">
+                  Driver's age is above 22 years
+                </span>
+              </>
+            )}
           </label>
-          {formik.touched.driverAgeAbove22 && formik.errors.driverAgeAbove22 ? (
-            <div className="text-red-500 text-sm">
-              {formik.errors.driverAgeAbove22}
-            </div>
-          ) : null}
         </div>
 
         {/* Terms and Conditions */}
         <div className="space-y-2">
           <label className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              name="termsAndConditions"
-              checked={formik.values.termsAndConditions}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <span className="text-sm text-gray-700">
-              I accept the terms and conditions
-            </span>
+            {loading ? (
+              <div className="w-48 h-6 bg-gray-300 animate-pulse rounded-md"></div>
+            ) : (
+              <>
+                <input
+                  type="checkbox"
+                  name="termsAndConditions"
+                  checked={formik.values.termsAndConditions}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="w-5 h-5 text-blue-600 border-gray-300 rounded-md focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">
+                  I accept the terms and conditions
+                </span>
+              </>
+            )}
           </label>
-          {formik.touched.termsAndConditions &&
-          formik.errors.termsAndConditions ? (
-            <div className="text-red-500 text-sm">
-              {formik.errors.termsAndConditions}
-            </div>
-          ) : null}
         </div>
       </div>
 
       {/* Submit Button */}
-
       <div className="flex justify-between mt-8">
         <button
           onClick={prevStep}
@@ -198,14 +215,12 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
         </button>
         <button
           type="submit"
-          disabled={!formik.isValid}
+          disabled={!formik.isValid || loading}
           className={`${
-            formik.isValid ? "bg-green-600" : "bg-gray-400"
-          } text-white px-8 py-2 rounded-sm text-lg font-medium ${
-            formik.isValid ? "bg-green-700" : "bg-gray-500"
-          } transition-all duration-300`}
+            formik.isValid && !loading ? "bg-green-600" : "bg-gray-400"
+          } text-white px-8 py-2 rounded-sm text-lg font-medium transition-all duration-300`}
         >
-          Next
+          {loading ? "Loading..." : "Next"}
         </button>
       </div>
     </form>
