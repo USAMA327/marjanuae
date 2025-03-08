@@ -209,7 +209,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
                     target="_blank"
                     className="text-secondary cursor-pointer font-semibold"
                   >
-                    terms and conditions
+                    Terms & Conditions
                   </a>
                 </span>
               </>
