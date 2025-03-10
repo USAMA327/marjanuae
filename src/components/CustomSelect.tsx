@@ -12,7 +12,7 @@ interface CustomSelectProps {
   selectedValue: string;
   onSelect: (value: string) => void;
   placeholder?: string;
-  isTop:boolean
+  isTop: boolean;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -20,7 +20,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   selectedValue,
   onSelect,
   placeholder = "Select an option",
-  isTop=true
+  isTop = true,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -61,16 +61,21 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 
       {/* Dropdown List */}
       {isOpen && (
-        <div className={`absolute ${isTop ? "top-full" :"bottom-full"}  mb-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-80 overflow-y-auto`}>
+        <div
+          className={`absolute ${
+            isTop ? "top-full" : "bottom-full"
+          }  mb-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-80 overflow-y-auto`}
+        >
           {options.map((option) => (
             <div
               key={option.value}
               className="p-2 border-b  hover:bg-gray-50 cursor-pointer transition-colors duration-200"
               onClick={() => handleSelect(option.value)}
             >
-              <div className="font-medium text-sm text-gray-800">{option.label} <span className="text-primary font-semibold text-xs ">
-                     (+{option.price} AED)
-                    </span></div>
+              <div className="font-medium text-sm text-gray-800">
+                {option.label}{" "}
+                <span className="text-primary font-semibold text-xs "></span>
+              </div>
               {/* {option.description && (
                 <div className="text-sm text-gray-600  text-right">
              

@@ -13,13 +13,13 @@ export default function Home() {
       <div className=" pt-28 pb-10  px-2 md:px-16  bg-soft-gray-blue text-black">
         <div className="flex flex-col lg:flex-row justify-between  py-10 ">
           <div className="flex text-center lg:text-left w-full lg:w-[50%] flex-col justify-center mb-5  ">
-            <h1 className="text-5xl uppercase font-bold bg-gradient-to-r from-secondary via-primary to-secondary bg-clip-text text-transparent font-serif">
-              AL Marjan
+            <h1 className="text-4xl uppercase font-bold bg-gradient-to-r from-secondary via-primary to-secondary bg-clip-text text-transparent font-serif">
+              AL Marjan Rent Car
             </h1>
 
-            <h2 className="font-bold text-5xl md:text-6xl ">
+            <h2 className="font-bold text-4xl md:text-5xl ">
               Find, book, and
-              <br className="hidden lg:block" /> rental car{" "}
+              <br className="hidden lg:block" /> rent your car{" "}
               <span className="text-primary relative ">
                 Easily{" "}
                 <Image
@@ -55,6 +55,8 @@ export default function Home() {
         </div>
 
         <BookingForm />
+
+        
       </div>
       <WorkingSteps />
 
