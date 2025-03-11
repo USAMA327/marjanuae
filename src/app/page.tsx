@@ -7,10 +7,11 @@ import WhyChooseUs from "@/components/WhyChooseUs";
 import BestServices from "@/components/BestServices";
 import Vector from "../../public/vector.png"
 import GoogleReviews from "./google-reviews/page";
+import OldBookingForm from "@/components/OldBookingForm";
 export default function Home() {
   return (
     <>
-    <div className=" pt-28 pb-10  px-2 md:px-16  bg-soft-gray-blue text-black">
+    <div className="pt-[5.2rem] md:pt-28 pb-10  px-2 md:px-16  bg-soft-gray-blue text-black">
       <div className="flex flex-col lg:flex-row justify-between  py-10 ">
         <div className="flex text-center lg:text-left w-full lg:w-[40%] flex-col justify-center mb-5  ">
           <h1 className="font-bold  text-4xl md:text-5xl  mb-2 md:mb-4 font-serif  text-primary ">AL MARJAN</h1>
@@ -36,7 +37,8 @@ export default function Home() {
         </div>
       </div>
 
-      <BookingForm />
+        {/* <BookingForm /> */}
+        <OldBookingForm/>
 
     </div>
       <WorkingSteps />

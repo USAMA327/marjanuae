@@ -40,8 +40,8 @@ const BestServices: React.FC = () => {
     <section className="text-black bg-blend-soft-light pb-32 flex flex-col items-center justify-center">
       {/* Heading Section */}
       <div className="text-center mb-12">
-        <h4 className="text-lg font-semibold text-primary bg-[#1572D310] px-4 py-3 rounded-sm mb-4 inline-block">
-          BEST SERVICES
+        <h4 className="text-lg uppercase font-semibold text-primary bg-[#1572D310] px-4 py-3 rounded-sm mb-4 inline-block">
+        Explore our new Models
         </h4>
         <h2 className="text-3xl font-bold text-[#323234]">
           Explore Our Top Deal From <br /> Top-Rated Dealer

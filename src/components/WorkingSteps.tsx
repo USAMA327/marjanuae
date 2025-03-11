@@ -44,10 +44,10 @@ export default function WorkingSteps() {
   return (
     <section className="text-black bg-blend-soft-light py-32 flex flex-col items-center justify-center ">
       <h2 className="text-lg font-semibold text-primary bg-[#1572D310] px-4 py-3 rounded-sm mb-4">HOW IT WORKS</h2>
-      <h3 className="text-3xl font-bold text-[#323234] text-center">
-        AL Marjan following 3 working Steps
+      <h3 className="text-4xl font-bold text-[#323234] text-center">
+      Renting is Super-Fast!
       </h3>
-      <div className="flex flex-col gap-5 md:gap-0 md:flex-row  justify-center items-center mt-20 ">
+      <div className="flex flex-col gap-5 md:gap-0 md:flex-row  justify-center items-center mt-16 ">
         {steps.map((step, index) => (
           <React.Fragment key={index}>
             <Step {...step} />

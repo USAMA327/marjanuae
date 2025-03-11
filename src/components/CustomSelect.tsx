@@ -12,7 +12,7 @@ interface CustomSelectProps {
   selectedValue: string;
   onSelect: (value: string) => void;
   placeholder?: string;
-  isTop:boolean
+  isTop: boolean
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -20,7 +20,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   selectedValue,
   onSelect,
   placeholder = "Select an option",
-  isTop=true
+  isTop = true
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -44,9 +44,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         <span className="text-gray-500">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className={`h-5 w-5 transform transition-transform duration-200 ${
-              isOpen ? "rotate-180" : ""
-            }`}
+            className={`h-5 w-5 transform transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+              }`}
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -61,7 +60,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 
       {/* Dropdown List */}
       {isOpen && (
-        <div className={`absolute ${isTop ? "top-full" :"bottom-full"}  mb-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-80 overflow-y-auto`}>
+        <div className={`absolute ${isTop ? "top-full" : "bottom-full"}  mb-2 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-80 overflow-y-auto`}>
           {options.map((option) => (
             <div
               key={option.value}
@@ -69,18 +68,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
               onClick={() => handleSelect(option.value)}
             >
               <div className="font-medium text-sm text-gray-800">{option.label} <span className="text-primary font-semibold text-xs ">
-                     (+{option.price} AED)
-                    </span></div>
-              {/* {option.description && (
-                <div className="text-sm text-gray-600  text-right">
-             
-                  {option.price !== undefined && (
-                    <span className="text-primary font-semibold text-sm ">
-                     (+{option.price} AED)
-                    </span>
-                  )}
-                </div>
-              )} */}
+              </span></div>
             </div>
           ))}
         </div>
