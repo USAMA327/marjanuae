@@ -46,7 +46,7 @@ const SkeletonLoader = () => {
 export default function UserMetaCard({ user }: { user: User }) {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const {logout} =useAuth()
+  const { logout } = useAuth();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -68,21 +68,19 @@ export default function UserMetaCard({ user }: { user: User }) {
 
   // Provide default values for `null` properties
   const email = user.email || "No email provided";
-  const displayName = user.displayName || "Anonymous";
-  const photoURL = user.photoURL ; // Provide a fallback image
+  const displayName = user.displayName || "";
+  const photoURL = user.photoURL; // Provide a fallback image
 
   if (loading) {
     return <SkeletonLoader />;
   }
-
-
 
   return (
     <div className="p-5 rounded-lg lg:p-6 shadow-lg border-white border-2">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
           <div className="w-20 h-20 flex justify-center items-center bg-black overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-            {photoURL  !== null ? (
+            {photoURL !== null ? (
               <Image
                 width={80}
                 height={80}
@@ -98,7 +96,7 @@ export default function UserMetaCard({ user }: { user: User }) {
           </div>
           <div className="order-3 xl:order-2">
             <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 xl:text-left">
-              {displayName} | {email}
+              {email} | {displayName || userData?.displayName}
             </h4>
             {userData && (
               <div className="">
@@ -111,14 +109,15 @@ export default function UserMetaCard({ user }: { user: User }) {
               </div>
             )}
           </div>
-
         </div>
-    
-        
       </div>
       <div className="flex justify-end">
-
-          <h3 onClick={()=>logout()} className="text-error-500 font-semibold border w-fit  px-4 py-2 bg-error-200 border-error-600 rounded-sm self-end cursor-pointer">Log Out</h3>
+        <h3
+          onClick={() => logout()}
+          className="text-error-500 font-semibold border w-fit  px-4 py-2 bg-error-200 border-error-600 rounded-sm self-end cursor-pointer"
+        >
+          Log Out
+        </h3>
       </div>
     </div>
   );

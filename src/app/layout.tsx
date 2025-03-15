@@ -10,7 +10,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
 import { Suspense } from "react";
 import { BookingProvider } from "@/context/BookingContext";
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from "react-hot-toast";
 import NoInternet from "@/components/NoInternet";
 const poppinsSans = Poppins({
   variable: "--font-poppins-sans",
@@ -37,8 +37,25 @@ const elMessiriMono = El_Messiri({
 });
 
 export const metadata: Metadata = {
-  title: "AL Marjan | UAE",
-  description: "Rent a car service.",
+  title: "Home | AL Marjan Car Rental UAE",
+  description:
+    "Explore a premium selection of rental cars at AL Marjan Car Rental UAE. We offer luxury, economy, and SUV rentals with flexible pricing and exceptional customer service. Rent a car in Dubai and across the UAE with ease.",
+  keywords: [
+    "Car rental UAE",
+    "Rent a car Dubai",
+    "Luxury car rental",
+    "SUV rental Dubai",
+    "Economy car rental UAE",
+    "Best car rental service in Dubai",
+  ],
+  authors: [{ name: "AL MARJAN RENT CARS" }],
+  openGraph: {
+    title: "Home |AL Marjan Car Rental UAE",
+    description:
+      "Understand the terms and conditions for renting a car with AL MARJAN RENT CARS in UAE. Get details on payments, deposits, insurance, returns, and rental policies.",
+    type: "website",
+    url: "https://marjanuae.com/",
+  },
 };
 
 export default function RootLayout({
@@ -48,30 +65,28 @@ export default function RootLayout({
 }>) {
   return (
     <>
-      <Suspense fallback={null}>
-      <Analytics />
-        <SpeedInsights />
-   
-        <html lang="en">
-          <body
-            className={`${poppinsSans.variable} ${poppinsMono.variable} ${elMessiriSans.variable} ${elMessiriMono.variable} antialiased`}
-          >
+      <html lang="en">
+
+        <body
+          className={`${poppinsSans.variable} ${poppinsMono.variable} ${elMessiriSans.variable} ${elMessiriMono.variable} antialiased`}
+        >
+          <Suspense fallback={null}>
+            <Analytics />
+            <SpeedInsights />
             <AuthProvider>
               <BookingProvider>
-           
                 <Cursor />
                 <Toaster />
-                <NoInternet/>
-              <ContactBar />
-              <Navbar />
-              {children}
-                  <Footer />
-   
-                </BookingProvider>
+                <NoInternet />
+                <ContactBar />
+                <Navbar />
+                  {children}       
+                <Footer />
+              </BookingProvider>
             </AuthProvider>
-          </body>
-        </html>
-      </Suspense>
+          </Suspense>
+        </body>
+      </html>
     </>
   );
 }

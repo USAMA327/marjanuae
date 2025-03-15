@@ -32,8 +32,9 @@ const TimeRangePicker: React.FC<TimeRangePickerProps> = ({
         <select
           value={timeRange.pickup}
           onChange={(e) => handlePickupTimeChange(e.target.value)}
-          className="p-2 border border-gray-300 rounded-lg w-full px-10"
+          className="p-2 border border-gray-300 rounded-lg w-full "
         >
+          <option>Select Pickup Time</option>
           {times.map((time) => (
             <option key={time} value={time}>
               {time}
@@ -50,8 +51,9 @@ const TimeRangePicker: React.FC<TimeRangePickerProps> = ({
         <select
           value={timeRange.dropoff}
           onChange={(e) => handleDropoffTimeChange(e.target.value)}
-          className="p-2 border border-gray-300 rounded-lg w-full px-10"
+          className="p-2 border border-gray-300 rounded-lg w-full "
         >
+          <option>Select DropOff Time</option>
           {times.map((time) => (
             <option key={time} value={time}>
               {time}

@@ -12,6 +12,7 @@ export interface Car {
   price: number; // Price in AED
   image: string; // URL of the car image
   isTop: boolean; // Is this a top car?
+  bags:number
 }
 
 export interface CarCards extends Car {
@@ -83,12 +84,65 @@ export interface Booking {
   id: string;
   car: any; // Firestore DocumentReference
   createdAt: string;
-  dropOffDate: string;
-  dropOffLocation: string;
-  pickUpDate: string;
-  pickUpLocation: string;
+  dropoffDate: Date;
+  dropoffLocation: string;
+  pickupDate: Date;
+  pickupLocation: string;
+  dropoffTime: Date,
+  pickupTime: Date;
   selectedAddOns: { name: string, price: number }[];
   totalPrice: number;
   user: any; // Firestore DocumentReference
-  status: number; // 1: Processing, 2: Active, 3: Completed, 4: Cancelled
+  status: number; // 1: Confirmed, 2: Active, 3: Completed, 4: Cancelled
+
+}
+
+export type AddOn = {
+  id?: string;
+  name: string;
+  price: number;
+  perDay?: boolean;
+};
+
+
+export interface Package {
+  id?: string; // Optional because it will be added by Firestore
+  name: string;
+  onlineDiscount: number;
+  rating: number;
+  excessUpto: number;
+  newPrice: number;
+  oldPrice: number;
+  list: {
+    available: boolean;
+    title: string;
+    description: string;
+  }[];
+}
+
+
+export interface BookingValues {
+  location: string;
+  dropoffLocation: string;
+  pickupDate: Date | undefined;
+  pickupTime: Date | undefined;
+  dropoffDate: Date | undefined;
+  dropoffTime: Date | undefined;
+}
+
+
+// types/payment.ts// types/payment.ts
+export interface PaymentRequest {
+  amount: string;
+  currency: string;
+  cardNumber: string;
+  expiryDate: string;
+  cvv: string;
+  callbackUrl: string;
+}
+
+export interface PaymentResponse {
+  redirectUrl: string;
+  orderId: string;
+  status: string;
 }

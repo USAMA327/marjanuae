@@ -47,9 +47,9 @@ const benefits = [
 ];
 
 const BenefitItem = ({ icon, title, description }: { icon: string; title: string; description: string }) => (
-  <div className="flex gap-3 items-center">
+  <div className="flex gap-3  items-start">
     <div className="h-16 w-16 flex justify-center items-center bg-[#ECF5FF] shadow-sm rounded-lg">
-      <Icon icon={icon} className="text-4xl text-[#1572D3]" />
+      <Icon icon={icon} className="text-4xl text-primary" />
     </div>
     <div className="flex-1">
       <h4 className="text-lg font-semibold text-gray-900">{title}</h4>

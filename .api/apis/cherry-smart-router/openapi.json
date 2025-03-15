@@ -1,0 +1,1366 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Direct APIs - V2",
+    "version": "unknown"
+  },
+  "servers": [
+    {
+      "url": "https://api.merchant.geidea.net/pgw/api/"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "sec0": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  },
+  "security": [
+    {
+      "sec0": []
+    }
+  ],
+  "paths": {
+    "/v6/direct/authenticate/initiate": {
+      "post": {
+        "summary": "Initiate Authentication",
+        "description": "",
+        "operationId": "initiate-authentication-v2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "sessionId",
+                  "cardNumber",
+                  "ReturnUrl"
+                ],
+                "properties": {
+                  "sessionId": {
+                    "type": "string",
+                    "description": "A session ID, is a unique identifier that a server generates as part of the create session API call and assigns to a merchant transaction for the duration of the session (15 min)."
+                  },
+                  "cardNumber": {
+                    "type": "string",
+                    "description": "Valid card number, as a string without any separators. Length of 16 for Visa, MasterCard, Mada cards. Length of 15 for American Express cards.",
+                    "default": "5123450000000008"
+                  },
+                  "ReturnUrl": {
+                    "type": "string",
+                    "description": "The URL where the client will be automatically redirected to once the Authentication process has been successful. Must be dynamic, based on the order being created. Must be a URL with a HTTPS protocol.",
+                    "default": "https://samplereturnurl.com"
+                  },
+                  "merchantName": {
+                    "type": "string",
+                    "description": "Name of the merchant initiating the transaction"
+                  },
+                  "callbackUrl": {
+                    "type": "string",
+                    "description": "The URL where the response containing order details will be returned. Must be a valid URL and must have an HTTPS protocol.",
+                    "default": "https://samplecallbackurl.com"
+                  },
+                  "isSetPaymentMethodEnabled": {
+                    "type": "boolean",
+                    "description": "If this is set to true, then the customer is allowed to use the payment gateway"
+                  },
+                  "isCreateCustomerEnabled": {
+                    "type": "boolean",
+                    "description": "If this is set to true, then the customer account will be created and can be used for later transactions."
+                  },
+                  "paymentOperation": {
+                    "type": "string",
+                    "description": "Type of payment operation that is carried out with this transaction",
+                    "default": "Pay",
+                    "enum": [
+                      "Pay",
+                      "PreAuthorize",
+                      "AuthorizeCapture"
+                    ]
+                  },
+                  "cardOnFile": {
+                    "type": "boolean",
+                    "description": "This field only applies if you collect details of card from your payers, store them, and either you or your payers use the stored value for subsequent payments."
+                  },
+                  "restrictPaymentMethods": {
+                    "type": "boolean",
+                    "description": "Flag indicating whether certain type of payment methods are restricted for this transaction"
+                  },
+                  "source": {
+                    "type": "string",
+                    "description": "Source of capturing the transaction. Use \"DirectAPI\" for this call.",
+                    "default": "DirectAPI",
+                    "enum": [
+                      "HPP. MobileApp",
+                      "DirectAPI"
+                    ]
+                  },
+                  "deviceIdentification": {
+                    "type": "object",
+                    "properties": {
+                      "providerDeviceId": {
+                        "type": "string",
+                        "description": "Unique identifier of the customer device used for the payment.",
+                        "default": "6fd571631df9d1e58269af54eeb4c1f0"
+                      },
+                      "language": {
+                        "type": "string",
+                        "description": "The language settings of the device or browser. ISO 639-1 code must be used",
+                        "default": "en",
+                        "enum": [
+                          "en",
+                          "ar"
+                        ]
+                      },
+                      "userAgent": {
+                        "type": "string",
+                        "description": "The User-Agent is a characteristic string that lets servers and network peers identify the application, operating system, vendor, and/or version of the requesting user agent.",
+                        "default": "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Result": {
+                    "value": "{\n    \"session\": {\n        \"id\": \"f1a0f785-7601-4d53-8f43-08dc33d8302c\",\n        \"amount\": 1850,\n        \"currency\": \"EGP\",\n        \"callbackUrl\": \"https://webhook.site/8ef88a07-b575-40a4-9a27-f2e78edf931e\",\n        \"returnUrl\": null,\n        \"expiryDate\": \"2024-03-04T14:28:52.0623131Z\",\n        \"status\": \"Initiated\",\n        \"merchantId\": \"4907f9f6-af43-434a-340a-08da8933ece3\",\n        \"merchantPublicKey\": \"40225a89-be31-4f2e-a10a-27b2bbc4e3b3\",\n        \"language\": \"en\",\n        \"merchantReferenceId\": \"10\",\n        \"paymentIntentId\": null,\n        \"paymentOperation\": \"Pay\",\n        \"cardOnFile\": false,\n        \"cofAgreement\": {\n            \"id\": null,\n            \"type\": null\n        },\n        \"initiatedBy\": null,\n        \"tokenId\": null,\n        \"customer\": null,\n        \"platform\": {\n            \"name\": null,\n            \"version\": null,\n            \"pluginVersion\": null,\n            \"partnerId\": null\n        },\n        \"paymentOptions\": null,\n        \"recurrence\": null,\n        \"order\": null,\n        \"items\": null,\n        \"appearance\": {\n            \"merchant\": {\n                \"name\": null,\n                \"logoUrl\": null\n            },\n            \"showEmail\": false,\n            \"showAddress\": false,\n            \"showPhone\": false,\n            \"receiptPage\": false,\n            \"styles\": {\n                \"headerColor\": null,\n                \"hppProfile\": null,\n                \"hideGeideaLogo\": false\n            }\n        },\n        \"metadata\": {\n            \"custom\": null\n        },\n        \"paymentMethod\": {\n            \"cardNumber\": null,\n            \"cardholderName\": null,\n            \"cvv\": null,\n            \"expiryDate\": {\n                \"month\": null,\n                \"year\": null\n            }\n        },\n        \"subscription\": null\n    },\n    \"responseMessage\": \"Success\",\n    \"detailedResponseMessage\": \"The operation was successful\",\n    \"language\": \"EN\",\n    \"responseCode\": \"000\",\n    \"detailedResponseCode\": \"000\"\n}"
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "session": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "f1a0f785-7601-4d53-8f43-08dc33d8302c"
+                        },
+                        "amount": {
+                          "type": "integer",
+                          "example": 1850,
+                          "default": 0
+                        },
+                        "currency": {
+                          "type": "string",
+                          "example": "EGP"
+                        },
+                        "callbackUrl": {
+                          "type": "string",
+                          "example": "https://webhook.site/8ef88a07-b575-40a4-9a27-f2e78edf931e"
+                        },
+                        "returnUrl": {},
+                        "expiryDate": {
+                          "type": "string",
+                          "example": "2024-03-04T14:28:52.0623131Z"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "Initiated"
+                        },
+                        "merchantId": {
+                          "type": "string",
+                          "example": "4907f9f6-af43-434a-340a-08da8933ece3"
+                        },
+                        "merchantPublicKey": {
+                          "type": "string",
+                          "example": "40225a89-be31-4f2e-a10a-27b2bbc4e3b3"
+                        },
+                        "language": {
+                          "type": "string",
+                          "example": "en"
+                        },
+                        "merchantReferenceId": {
+                          "type": "string",
+                          "example": "10"
+                        },
+                        "paymentIntentId": {},
+                        "paymentOperation": {
+                          "type": "string",
+                          "example": "Pay"
+                        },
+                        "cardOnFile": {
+                          "type": "boolean",
+                          "example": false,
+                          "default": true
+                        },
+                        "cofAgreement": {
+                          "type": "object",
+                          "properties": {
+                            "id": {},
+                            "type": {}
+                          }
+                        },
+                        "initiatedBy": {},
+                        "tokenId": {},
+                        "customer": {},
+                        "platform": {
+                          "type": "object",
+                          "properties": {
+                            "name": {},
+                            "version": {},
+                            "pluginVersion": {},
+                            "partnerId": {}
+                          }
+                        },
+                        "paymentOptions": {},
+                        "recurrence": {},
+                        "order": {},
+                        "items": {},
+                        "appearance": {
+                          "type": "object",
+                          "properties": {
+                            "merchant": {
+                              "type": "object",
+                              "properties": {
+                                "name": {},
+                                "logoUrl": {}
+                              }
+                            },
+                            "showEmail": {
+                              "type": "boolean",
+                              "example": false,
+                              "default": true
+                            },
+                            "showAddress": {
+                              "type": "boolean",
+                              "example": false,
+                              "default": true
+                            },
+                            "showPhone": {
+                              "type": "boolean",
+                              "example": false,
+                              "default": true
+                            },
+                            "receiptPage": {
+                              "type": "boolean",
+                              "example": false,
+                              "default": true
+                            },
+                            "styles": {
+                              "type": "object",
+                              "properties": {
+                                "headerColor": {},
+                                "hppProfile": {},
+                                "hideGeideaLogo": {
+                                  "type": "boolean",
+                                  "example": false,
+                                  "default": true
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "metadata": {
+                          "type": "object",
+                          "properties": {
+                            "custom": {}
+                          }
+                        },
+                        "paymentMethod": {
+                          "type": "object",
+                          "properties": {
+                            "cardNumber": {},
+                            "cardholderName": {},
+                            "cvv": {},
+                            "expiryDate": {
+                              "type": "object",
+                              "properties": {
+                                "month": {},
+                                "year": {}
+                              }
+                            }
+                          }
+                        },
+                        "subscription": {}
+                      }
+                    },
+                    "responseMessage": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "detailedResponseMessage": {
+                      "type": "string",
+                      "example": "The operation was successful"
+                    },
+                    "language": {
+                      "type": "string",
+                      "example": "EN"
+                    },
+                    "responseCode": {
+                      "type": "string",
+                      "example": "000"
+                    },
+                    "detailedResponseCode": {
+                      "type": "string",
+                      "example": "000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Result": {
+                    "value": "{\n    \"responseMessage\": \"HPP Integration error\",\n    \"detailedResponseMessage\": \"Invalid amount\",\n    \"language\": \"EN\",\n    \"responseCode\": \"110\",\n    \"detailedResponseCode\": \"003\"\n}"
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "responseMessage": {
+                      "type": "string",
+                      "example": "HPP Integration error"
+                    },
+                    "detailedResponseMessage": {
+                      "type": "string",
+                      "example": "Invalid amount"
+                    },
+                    "language": {
+                      "type": "string",
+                      "example": "EN"
+                    },
+                    "responseCode": {
+                      "type": "string",
+                      "example": "110"
+                    },
+                    "detailedResponseCode": {
+                      "type": "string",
+                      "example": "003"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v6/direct/authenticate/payer": {
+      "post": {
+        "summary": "Authenticate Payer",
+        "description": "",
+        "operationId": "authenticate-payer-v-2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "sessionId",
+                  "orderId",
+                  "paymentMethod",
+                  "deviceIdentification"
+                ],
+                "properties": {
+                  "sessionId": {
+                    "type": "string",
+                    "description": "A session ID, is a unique identifier that a server generates as part of the create session API call and assigns to a merchant transaction for the duration of the session (15 min)."
+                  },
+                  "orderId": {
+                    "type": "string",
+                    "description": "This is a unique identifier for this order to discern it from others order you created. If orderId is not sent with the request, an orderId is created by the server and returned in the response. The orderid can be used to refer to this order in subsequent transactions and in retrieving meta data about the order. The orderId must always be unique for every order created under your merchant profile. This must be a valid GUID."
+                  },
+                  "source": {
+                    "type": "string",
+                    "description": "Source of capturing the transaction. Use \"DirectAPI\" for this call.",
+                    "default": "DirectAPI",
+                    "enum": [
+                      "HPP",
+                      "MobileApp",
+                      "DirectAPI"
+                    ]
+                  },
+                  "paymentMethod": {
+                    "type": "object",
+                    "description": "Details of the card used for the purchase.",
+                    "required": [
+                      "cardholderName",
+                      "cardNumber",
+                      "cvv"
+                    ],
+                    "properties": {
+                      "cardholderName": {
+                        "type": "string",
+                        "description": "Name on card",
+                        "default": "Ahmed"
+                      },
+                      "cardNumber": {
+                        "type": "string",
+                        "description": "Valid card number, as a string without any separators.",
+                        "default": "5123450000000008"
+                      },
+                      "cvv": {
+                        "type": "string",
+                        "description": "Card Verification Value. This code is usually composed of a three-digit number provided available at the back of the card or 4 digit number above the card number on the right side on the front of the card",
+                        "default": "100"
+                      },
+                      "expiryDate": {
+                        "type": "object",
+                        "description": "Expiry month and year of the card",
+                        "required": [
+                          "month",
+                          "year"
+                        ],
+                        "properties": {
+                          "month": {
+                            "type": "string",
+                            "description": "2 digit number for the month",
+                            "default": "01"
+                          },
+                          "year": {
+                            "type": "string",
+                            "description": "2-digit year code",
+                            "default": "39"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "deviceIdentification": {
+                    "type": "object",
+                    "description": "Unique device identifier",
+                    "properties": {
+                      "providerDeviceId": {
+                        "type": "string",
+                        "description": "Unique identifier of the customer device used for the payment.",
+                        "default": "6fd571631df9d1e58269af54eeb4c1f0"
+                      },
+                      "language": {
+                        "type": "string",
+                        "description": "The language settings of the device or browser. ISO 639-1 code must be used",
+                        "default": "en",
+                        "enum": [
+                          "en",
+                          "ar"
+                        ]
+                      },
+                      "userAgent": {
+                        "type": "string",
+                        "description": "The User-Agent is a characteristic string that lets servers and network peers identify the application, operating system, vendor, and/or version of the requesting user agent.",
+                        "default": "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36"
+                      }
+                    }
+                  },
+                  "timeZone": {
+                    "type": "string",
+                    "description": "Time in minutes from UTC timezone."
+                  }
+                }
+              },
+              "examples": {
+                "Request Example": {
+                  "value": {
+                    "sessionId": "a05da74b-859a-4daf-5bec-08dc33dd067b",
+                    "orderId": "d56026ac-2784-4524-eef7-08dc33b7e268",
+                    "paymentMethod": {
+                      "cardholderName": "kanti",
+                      "cardNumber": "5123450000000008",
+                      "cvv": "100",
+                      "expiryDate": {
+                        "month": 1,
+                        "year": 39
+                      }
+                    },
+                    "deviceIdentification": {
+                      "providerDeviceId": "bc8e1fc68c1c6188f95947cec64ce1b0",
+                      "language": "en",
+                      "userAgent": "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36"
+                    },
+                    "timeZone": -480,
+                    "source": "MobileApp"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Result": {
+                    "value": "{\n    \"orderId\": \"d56026ac-2784-4524-eef7-08dc33b7e268\",\n    \"threeDSecureId\": \"5e3cf62a-9ec7-4d26-ca24-08dc33b7e269\",\n    \"htmlBodyContent\": \"<div id=\\\"threedsChallengeRedirect\\\" xmlns=\\\"http://www.w3.org/1999/html\\\" style=\\\" height: 100vh\\\"> <form id =\\\"threedsChallengeRedirectForm\\\" method=\\\"POST\\\" action=\\\"https://mtf.gateway.mastercard.com/acs/mastercard/v2/prompt\\\" target=\\\"challengeFrame\\\"> <input type=\\\"hidden\\\" name=\\\"creq\\\" value=\\\"eyJ0aHJlZURTU2VydmVyVHJhbnNJRCI6IjlmMDZmZjc5LTVlYjUtNDdlMS05ZjZkLWU0MzQyYWUyYjFkYyJ9\\\" /> </form> <iframe id=\\\"challengeFrame\\\" name=\\\"challengeFrame\\\" width=\\\"100%\\\" height=\\\"100%\\\" ></iframe> <script id=\\\"authenticate-payer-script\\\"> var e=document.getElementById(\\\"threedsChallengeRedirectForm\\\"); if (e) { e.submit(); if (e.parentNode !== null) { e.parentNode.removeChild(e); } } </script> </div>\",\n    \"gatewayDecision\": \"ContinueToPay\",\n    \"responseMessage\": \"Success\",\n    \"detailedResponseMessage\": \"The operation was successful\",\n    \"language\": \"en\",\n    \"responseCode\": \"000\",\n    \"detailedResponseCode\": \"000\"\n}"
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orderId": {
+                      "type": "string",
+                      "example": "d56026ac-2784-4524-eef7-08dc33b7e268"
+                    },
+                    "threeDSecureId": {
+                      "type": "string",
+                      "example": "5e3cf62a-9ec7-4d26-ca24-08dc33b7e269"
+                    },
+                    "htmlBodyContent": {
+                      "type": "string",
+                      "example": "<div id=\"threedsChallengeRedirect\" xmlns=\"http://www.w3.org/1999/html\" style=\" height: 100vh\"> <form id =\"threedsChallengeRedirectForm\" method=\"POST\" action=\"https://mtf.gateway.mastercard.com/acs/mastercard/v2/prompt\" target=\"challengeFrame\"> <input type=\"hidden\" name=\"creq\" value=\"eyJ0aHJlZURTU2VydmVyVHJhbnNJRCI6IjlmMDZmZjc5LTVlYjUtNDdlMS05ZjZkLWU0MzQyYWUyYjFkYyJ9\" /> </form> <iframe id=\"challengeFrame\" name=\"challengeFrame\" width=\"100%\" height=\"100%\" ></iframe> <script id=\"authenticate-payer-script\"> var e=document.getElementById(\"threedsChallengeRedirectForm\"); if (e) { e.submit(); if (e.parentNode !== null) { e.parentNode.removeChild(e); } } </script> </div>"
+                    },
+                    "gatewayDecision": {
+                      "type": "string",
+                      "example": "ContinueToPay"
+                    },
+                    "responseMessage": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "detailedResponseMessage": {
+                      "type": "string",
+                      "example": "The operation was successful"
+                    },
+                    "language": {
+                      "type": "string",
+                      "example": "en"
+                    },
+                    "responseCode": {
+                      "type": "string",
+                      "example": "000"
+                    },
+                    "detailedResponseCode": {
+                      "type": "string",
+                      "example": "000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Result": {
+                    "value": "{\n    \"orderId\": \"d56026ac-2784-4524-eef7-08dc33b7f268\",\n    \"responseMessage\": \"General error\",\n    \"detailedResponseMessage\": \"Order not found\",\n    \"language\": \"en\",\n    \"responseCode\": \"100\",\n    \"detailedResponseCode\": \"011\"\n}"
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orderId": {
+                      "type": "string",
+                      "example": "d56026ac-2784-4524-eef7-08dc33b7f268"
+                    },
+                    "responseMessage": {
+                      "type": "string",
+                      "example": "General error"
+                    },
+                    "detailedResponseMessage": {
+                      "type": "string",
+                      "example": "Order not found"
+                    },
+                    "language": {
+                      "type": "string",
+                      "example": "en"
+                    },
+                    "responseCode": {
+                      "type": "string",
+                      "example": "100"
+                    },
+                    "detailedResponseCode": {
+                      "type": "string",
+                      "example": "011"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/v2/direct/pay": {
+      "post": {
+        "summary": "Pay",
+        "description": "",
+        "operationId": "pay-v-2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "sessionId",
+                  "orderId",
+                  "threeDSecureId",
+                  "paymentMethod"
+                ],
+                "properties": {
+                  "sessionId": {
+                    "type": "string",
+                    "description": "A session ID, is a unique identifier that a server generates as part of the create session API call and assigns to a merchant transaction for the duration of the session (15 min)."
+                  },
+                  "orderId": {
+                    "type": "string",
+                    "description": "This is a unique identifier for this order to discern it from others order you created. If orderId is not sent with the request, an orderId is created by the server and returned in the response. The orderid can be used to refer to this order in subsequent transactions and in retrieving meta data about the order. The orderId must always be unique for every order created under your merchant profile. This must be a valid GUID."
+                  },
+                  "threeDSecureId": {
+                    "type": "string",
+                    "description": "3D Secure ID of the order created through the Authenticate Payer operation."
+                  },
+                  "paymentMethod": {
+                    "type": "object",
+                    "description": "Details of the card used for the purchase.",
+                    "required": [
+                      "cardholderName",
+                      "cardNumber",
+                      "cvv"
+                    ],
+                    "properties": {
+                      "cardholderName": {
+                        "type": "string",
+                        "description": "Name on card",
+                        "default": "Ahmed"
+                      },
+                      "cardNumber": {
+                        "type": "string",
+                        "description": "Valid card number, as a string without any separators.",
+                        "default": "5123450000000008"
+                      },
+                      "cvv": {
+                        "type": "string",
+                        "description": "Card Verification Value. This code is usually composed of a three-digit number provided available at the back of the card or 4 digit number above the card number on the right side on the front of the card",
+                        "default": "100"
+                      },
+                      "expiryDate": {
+                        "type": "object",
+                        "description": "Expiry month and year of the card",
+                        "required": [
+                          "month",
+                          "year"
+                        ],
+                        "properties": {
+                          "month": {
+                            "type": "string",
+                            "description": "2 digit number for the month",
+                            "default": "01"
+                          },
+                          "year": {
+                            "type": "string",
+                            "description": "2-digit year code",
+                            "default": "39"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "source": {
+                    "type": "string",
+                    "description": "Source of capturing the transaction. Use \"DirectAPI\" for this call.",
+                    "default": "DirectAPI",
+                    "enum": [
+                      "HPP",
+                      "MobileApp",
+                      "DirectAPI"
+                    ]
+                  },
+                  "paymentOperation": {
+                    "type": "string",
+                    "description": "Type of payment operation that is carried out with this transaction",
+                    "default": "Pay",
+                    "enum": [
+                      "PreAuthorize",
+                      "AuthorizeCapture",
+                      "Pay"
+                    ]
+                  },
+                  "customerPhoneNumber": {
+                    "type": "string",
+                    "description": "Customer's phone number eg: \"511111111\". If phoneCountryCode is passed, phoneNumber must be passed."
+                  },
+                  "customerPhoneCountryCode": {
+                    "type": "string",
+                    "description": "Country code of customer's phone number eg: \"+971\". If phoneNumber is passed, phoneCountryCode must be passed"
+                  },
+                  "ReturnUrl": {
+                    "type": "string",
+                    "description": "The URL where the client will be automatically redirected to once the Authentication process has been successful. Must be dynamic, based on the order being created. Must be a URL with a HTTPS protocol.",
+                    "default": "https://somereturnurl.com"
+                  }
+                }
+              },
+              "examples": {
+                "Request Example": {
+                  "value": {
+                    "sessionId": "a05da74b-859a-4daf-5bec-08dc33dd067b",
+                    "orderId": "d56026ac-2784-4524-eef7-08dc33b7e268",
+                    "threeDSecureId": "5e3cf62a-9ec7-4d26-ca24-08dc33b7e269",
+                    "paymentOperation": "Pay",
+                    "customerPhoneNumber": null,
+                    "customerPhoneCountryCode": null,
+                    "paymentMethod": {
+                      "cardholderName": "otst-PUT",
+                      "cardNumber": "5123450000000008",
+                      "cvv": "100",
+                      "expiryDate": {
+                        "month": 1,
+                        "year": 39
+                      }
+                    },
+                    "ReturnUrl": "https://omnytr.free.beeceptor.com",
+                    "source": "MobileApp"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Result": {
+                    "value": "{\n    \"order\": {\n        \"orderId\": \"d56026ac-2784-4524-eef7-08dc33b7e268\",\n        \"amount\": 1850.00,\n        \"tipAmount\": 0.00,\n        \"convenienceFeeAmount\": 0.00,\n        \"totalAmount\": 1850.00,\n        \"settleAmount\": 1850.00,\n        \"currency\": \"EGP\",\n        \"settleCurrency\": \"EGP\",\n        \"language\": \"en\",\n        \"detailedStatus\": \"Paid\",\n        \"status\": \"Success\",\n        \"threeDSecureId\": \"5e3cf62a-9ec7-4d26-ca24-08dc33b7e269\",\n        \"merchantId\": \"4907f9f6-af43-434a-340a-08da8933ece3\",\n        \"merchantPublicKey\": \"40225a89-be31-4f2e-a10a-27b2bbc4e3b3\",\n        \"parentOrderId\": null,\n        \"merchantReferenceId\": null,\n        \"mcc\": \"4011\",\n        \"callbackUrl\": \"https://omnytr.free.beeceptor.com\",\n        \"billingAddress\": null,\n        \"shippingAddress\": null,\n        \"returnUrl\": \"https://webhook.site/92c440a0-4b17-4f96-ad72-bb8c91080f05\",\n        \"cardOnFile\": false,\n        \"tokenId\": null,\n        \"initiatedBy\": \"Internet\",\n        \"agreementId\": null,\n        \"agreementType\": null,\n        \"amountVariability\": null,\n        \"paymentOperation\": \"Pay\",\n        \"custom\": null,\n        \"paymentIntent\": null,\n        \"restrictPaymentMethods\": true,\n        \"paymentMethods\": null,\n        \"platform\": null,\n        \"statementDescriptor\": null,\n        \"description\": null,\n        \"setDefaultPaymentMethod\": false,\n        \"recurrence\": null,\n        \"transactions\": [\n            {\n                \"transactionId\": \"5e3cf62a-9ec7-4d26-ca24-08dc33b7e269\",\n                \"type\": \"Authentication\",\n                \"status\": \"Success\",\n                \"amount\": 1850.00,\n                \"currency\": \"EGP\",\n                \"source\": \"MobileApp\",\n                \"authorizationCode\": null,\n                \"rrn\": null,\n                \"stan\": \"0\",\n                \"paymentMethod\": {\n                    \"type\": \"Card\",\n                    \"brand\": \"mastercard\",\n                    \"cardholderName\": \"kanti\",\n                    \"maskedCardNumber\": \"512345******0008\",\n                    \"wallet\": null,\n                    \"expiryDate\": {\n                        \"month\": 1,\n                        \"year\": 39\n                    },\n                    \"sameBank\": false,\n                    \"issuingCountry\": null,\n                    \"fundingType\": null,\n                    \"issuingBank\": null,\n                    \"cardCategory\": null\n                },\n                \"codes\": {\n                    \"acquirerCode\": null,\n                    \"acquirerMessage\": null,\n                    \"responseCode\": \"000\",\n                    \"responseMessage\": \"Success\",\n                    \"detailedResponseCode\": \"000\",\n                    \"detailedResponseMessage\": \"The operation was successful\"\n                },\n                \"authenticationDetails\": {\n                    \"acsEci\": \"02\",\n                    \"authenticationToken\": \"kHyn+7YFi1EUAREAAAAvNUe6Hv8=\",\n                    \"paResStatus\": null,\n                    \"veResEnrolled\": null,\n                    \"xid\": \"6ac70f42-f347-419d-b2b6-ee13b2b9bf7a\",\n                    \"accountAuthenticationValue\": null,\n                    \"proofXml\": null,\n                    \"threeDSecureServerTransactionId\": null,\n                    \"acsTransactionId\": \"dc1d9f8c-41d8-4553-9c86-26d3d19d1ce6\",\n                    \"directoryServerId\": \"A999999999\",\n                    \"dsTransactionId\": \"6ac70f42-f347-419d-b2b6-ee13b2b9bf7a\",\n                    \"methodCompleted\": false,\n                    \"methodSupported\": \"SUPPORTED\",\n                    \"protocolVersion\": \"2.1.0\",\n                    \"requestorId\": \"MAS00001_INT_MPGS_MTTESTGEIDEATESTE\",\n                    \"requestorName\": \"Geidea Technology\",\n                    \"transactionStatus\": \"Y\",\n                    \"statusReasonCode\": null,\n                    \"acsReferenceNumber\": null,\n                    \"dsReferenceNumber\": null\n                },\n                \"postilionDetails\": null,\n                \"terminalDetails\": null,\n                \"meezaDetails\": null,\n                \"bnplDetails\": null,\n                \"bankInstallmentDetails\": null,\n                \"correlationId\": \"01016686-b45a-41c3-8b36-04e2971bfde6\",\n                \"parentTransactionId\": null,\n                \"paymentAttemptId\": \"e8cbc40e-21cd-4c47-8b7f-d4df44c342c7\",\n                \"acquirer\": {\n                    \"additionalResponseData\": null,\n                    \"batch\": null,\n                    \"customData\": null,\n                    \"date\": null,\n                    \"id\": null,\n                    \"merchantId\": \"001222222222\",\n                    \"settlementDate\": null,\n                    \"time\": null,\n                    \"timeZone\": null,\n                    \"transactionId\": null\n                },\n                \"authorizationResponse\": {\n                    \"autoExpiry\": null,\n                    \"avsCode\": null,\n                    \"cardLevelIndicator\": null,\n                    \"cardSecurityCodeError\": null,\n                    \"cardSecurityCodePresenceIndicator\": null,\n                    \"commercialCard\": null,\n                    \"commercialCardIndicator\": null,\n                    \"financialNetworkCode\": null,\n                    \"financialNetworkDate\": null,\n                    \"marketSpecificData\": null,\n                    \"merchantAdviceCode\": null,\n                    \"paySvcData\": null,\n                    \"posData\": null,\n                    \"posEntryMode\": null,\n                    \"posEntryModeChanged\": null,\n                    \"processingCode\": null,\n                    \"responseCode\": null,\n                    \"date\": null,\n                    \"responseMessage\": null,\n                    \"returnAci\": null,\n                    \"time\": null,\n                    \"timeZone\": null,\n                    \"trackQuality\": null,\n                    \"transactionIdentifier\": null,\n                    \"transactionIntegrityClass\": null,\n                    \"validationCode\": null,\n                    \"vpasResponse\": null\n                },\n                \"madaDetails\": null,\n                \"refundType\": null,\n                \"refundStatus\": null,\n                \"isExtensionComplete\": null,\n                \"extensionDate\": \"2024-03-04T13:36:08.5778312\",\n                \"deviceId\": \"f4767e8c-6806-4ac5-e345-08dbfbc233db\",\n                \"createdDate\": \"2024-03-04T13:33:33.9731001\",\n                \"createdBy\": \"PGW\",\n                \"updatedDate\": \"2024-03-04T13:36:08.5784054\",\n                \"updatedBy\": \"PGW\"\n            },\n            {\n                \"transactionId\": \"a6fb46cf-49f5-4b42-1f5b-08dc33b7815d\",\n                \"type\": \"Pay\",\n                \"status\": \"Success\",\n                \"amount\": 1850.00,\n                \"currency\": \"EGP\",\n                \"source\": \"MobileApp\",\n                \"authorizationCode\": \"012721\",\n                \"rrn\": \"406413012721\",\n                \"stan\": \"12721\",\n                \"paymentMethod\": {\n                    \"type\": \"Card\",\n                    \"brand\": \"mastercard\",\n                    \"cardholderName\": \"otst-PUT\",\n                    \"maskedCardNumber\": \"512345******0008\",\n                    \"wallet\": null,\n                    \"expiryDate\": {\n                        \"month\": 1,\n                        \"year\": 39\n                    },\n                    \"sameBank\": false,\n                    \"issuingCountry\": null,\n                    \"fundingType\": null,\n                    \"issuingBank\": null,\n                    \"cardCategory\": null\n                },\n                \"codes\": {\n                    \"acquirerCode\": \"00\",\n                    \"acquirerMessage\": \"Approved\",\n                    \"responseCode\": \"000\",\n                    \"responseMessage\": \"Success\",\n                    \"detailedResponseCode\": \"000\",\n                    \"detailedResponseMessage\": \"The operation was successful\"\n                },\n                \"authenticationDetails\": null,\n                \"postilionDetails\": null,\n                \"terminalDetails\": null,\n                \"meezaDetails\": null,\n                \"bnplDetails\": null,\n                \"bankInstallmentDetails\": null,\n                \"correlationId\": \"d8d90890-d166-4e42-875a-7742976c1600\",\n                \"parentTransactionId\": null,\n                \"paymentAttemptId\": \"e8cbc40e-21cd-4c47-8b7f-d4df44c342c7\",\n                \"acquirer\": {\n                    \"additionalResponseData\": null,\n                    \"batch\": 20240304,\n                    \"customData\": null,\n                    \"date\": \"0304\",\n                    \"id\": \"NBE_S2I\",\n                    \"merchantId\": \"001222222222\",\n                    \"settlementDate\": \"2024-03-04T00:00:00\",\n                    \"time\": null,\n                    \"timeZone\": \"+0200\",\n                    \"transactionId\": \"123456789\"\n                },\n                \"authorizationResponse\": {\n                    \"autoExpiry\": null,\n                    \"avsCode\": null,\n                    \"cardLevelIndicator\": null,\n                    \"cardSecurityCodeError\": \"M\",\n                    \"cardSecurityCodePresenceIndicator\": null,\n                    \"commercialCard\": \"888\",\n                    \"commercialCardIndicator\": \"3\",\n                    \"financialNetworkCode\": \"777\",\n                    \"financialNetworkDate\": null,\n                    \"marketSpecificData\": null,\n                    \"merchantAdviceCode\": null,\n                    \"paySvcData\": null,\n                    \"posData\": \"1025100006600\",\n                    \"posEntryMode\": \"812\",\n                    \"posEntryModeChanged\": null,\n                    \"processingCode\": \"003000\",\n                    \"responseCode\": \"00\",\n                    \"date\": null,\n                    \"responseMessage\": null,\n                    \"returnAci\": null,\n                    \"time\": null,\n                    \"timeZone\": null,\n                    \"trackQuality\": null,\n                    \"transactionIdentifier\": \"123456789\",\n                    \"transactionIntegrityClass\": null,\n                    \"validationCode\": null,\n                    \"vpasResponse\": null\n                },\n                \"madaDetails\": null,\n                \"refundType\": null,\n                \"refundStatus\": null,\n                \"isExtensionComplete\": null,\n                \"extensionDate\": \"2024-03-04T13:36:58.8979722Z\",\n                \"deviceId\": \"f4767e8c-6806-4ac5-e345-08dbfbc233db\",\n                \"createdDate\": \"2024-03-04T13:36:57.0031484\",\n                \"createdBy\": \"PGW\",\n                \"updatedDate\": \"2024-03-04T13:36:58.898706Z\",\n                \"updatedBy\": \"PGW\"\n            }\n        ],\n        \"orderItems\": [],\n        \"isTokenPayment\": false,\n        \"paymentMethod\": {\n            \"type\": \"Card\",\n            \"brand\": \"mastercard\",\n            \"cardholderName\": \"otst-PUT\",\n            \"maskedCardNumber\": \"512345******0008\",\n            \"wallet\": null,\n            \"expiryDate\": {\n                \"month\": 1,\n                \"year\": 39\n            },\n            \"sameBank\": false,\n            \"issuingCountry\": null,\n            \"fundingType\": null,\n            \"issuingBank\": null,\n            \"cardCategory\": null\n        },\n        \"totalAuthorizedAmount\": 1850.00,\n        \"totalCapturedAmount\": 1850.00,\n        \"totalRefundedAmount\": 0,\n        \"orderSource\": \"GeideaGateway\",\n        \"paymentBrands\": [\n            \"mastercard\"\n        ],\n        \"multiCurrency\": {\n            \"authCurrency\": \"EGP\",\n            \"authAmount\": 1850.00,\n            \"settleCurrency\": \"EGP\",\n            \"settleAmount\": 1850.00,\n            \"exchangeRate\": null,\n            \"exchangeFeePercentage\": null,\n            \"exchangeFeeAmount\": null\n        },\n        \"isTest\": true,\n        \"cashOnDelivery\": false,\n        \"amountToCollect\": null,\n        \"isDownPayment\": false,\n        \"exchangeRate\": null,\n        \"exchangeFeePercentage\": null,\n        \"exchangeFeeAmount\": null,\n        \"deviceId\": \"f4767e8c-6806-4ac5-e345-08dbfbc233db\",\n        \"gatewayDecision\": \"ContinueToPay\",\n        \"subscriptionId\": null,\n        \"subscriptionOccurrenceId\": null,\n        \"refundType\": null,\n        \"refundStatus\": null,\n        \"bankId\": \"1003\",\n        \"isPayWithToken\": false,\n        \"customerName\": null,\n        \"customerEmail\": null,\n        \"createCustomer\": false,\n        \"customerReferenceId\": null,\n        \"customerId\": null,\n        \"customerPhoneNumber\": null,\n        \"customerPhoneCountryCode\": null,\n        \"customerCustomValue\": null,\n        \"airLine\": null,\n        \"createdDate\": \"2024-03-04T13:33:33.9731001\",\n        \"createdBy\": \"PGW\",\n        \"updatedDate\": \"2024-03-04T13:34:03.1484588\",\n        \"updatedBy\": \"PGW\"\n    },\n    \"responseMessage\": \"Success\",\n    \"detailedResponseMessage\": \"The operation was successful\",\n    \"language\": \"en\",\n    \"responseCode\": \"000\",\n    \"detailedResponseCode\": \"000\"\n}"
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "order": {
+                      "type": "object",
+                      "properties": {
+                        "orderId": {
+                          "type": "string",
+                          "example": "d56026ac-2784-4524-eef7-08dc33b7e268"
+                        },
+                        "amount": {
+                          "type": "integer",
+                          "example": 1850,
+                          "default": 0
+                        },
+                        "tipAmount": {
+                          "type": "integer",
+                          "example": 0,
+                          "default": 0
+                        },
+                        "convenienceFeeAmount": {
+                          "type": "integer",
+                          "example": 0,
+                          "default": 0
+                        },
+                        "totalAmount": {
+                          "type": "integer",
+                          "example": 1850,
+                          "default": 0
+                        },
+                        "settleAmount": {
+                          "type": "integer",
+                          "example": 1850,
+                          "default": 0
+                        },
+                        "currency": {
+                          "type": "string",
+                          "example": "EGP"
+                        },
+                        "settleCurrency": {
+                          "type": "string",
+                          "example": "EGP"
+                        },
+                        "language": {
+                          "type": "string",
+                          "example": "en"
+                        },
+                        "detailedStatus": {
+                          "type": "string",
+                          "example": "Paid"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "Success"
+                        },
+                        "threeDSecureId": {
+                          "type": "string",
+                          "example": "5e3cf62a-9ec7-4d26-ca24-08dc33b7e269"
+                        },
+                        "merchantId": {
+                          "type": "string",
+                          "example": "4907f9f6-af43-434a-340a-08da8933ece3"
+                        },
+                        "merchantPublicKey": {
+                          "type": "string",
+                          "example": "40225a89-be31-4f2e-a10a-27b2bbc4e3b3"
+                        },
+                        "parentOrderId": {},
+                        "merchantReferenceId": {},
+                        "mcc": {
+                          "type": "string",
+                          "example": "4011"
+                        },
+                        "callbackUrl": {
+                          "type": "string",
+                          "example": "https://omnytr.free.beeceptor.com"
+                        },
+                        "billingAddress": {},
+                        "shippingAddress": {},
+                        "returnUrl": {
+                          "type": "string",
+                          "example": "https://webhook.site/92c440a0-4b17-4f96-ad72-bb8c91080f05"
+                        },
+                        "cardOnFile": {
+                          "type": "boolean",
+                          "example": false,
+                          "default": true
+                        },
+                        "tokenId": {},
+                        "initiatedBy": {
+                          "type": "string",
+                          "example": "Internet"
+                        },
+                        "agreementId": {},
+                        "agreementType": {},
+                        "amountVariability": {},
+                        "paymentOperation": {
+                          "type": "string",
+                          "example": "Pay"
+                        },
+                        "custom": {},
+                        "paymentIntent": {},
+                        "restrictPaymentMethods": {
+                          "type": "boolean",
+                          "example": true,
+                          "default": true
+                        },
+                        "paymentMethods": {},
+                        "platform": {},
+                        "statementDescriptor": {},
+                        "description": {},
+                        "setDefaultPaymentMethod": {
+                          "type": "boolean",
+                          "example": false,
+                          "default": true
+                        },
+                        "recurrence": {},
+                        "transactions": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "transactionId": {
+                                "type": "string",
+                                "example": "5e3cf62a-9ec7-4d26-ca24-08dc33b7e269"
+                              },
+                              "type": {
+                                "type": "string",
+                                "example": "Authentication"
+                              },
+                              "status": {
+                                "type": "string",
+                                "example": "Success"
+                              },
+                              "amount": {
+                                "type": "integer",
+                                "example": 1850,
+                                "default": 0
+                              },
+                              "currency": {
+                                "type": "string",
+                                "example": "EGP"
+                              },
+                              "source": {
+                                "type": "string",
+                                "example": "MobileApp"
+                              },
+                              "authorizationCode": {},
+                              "rrn": {},
+                              "stan": {
+                                "type": "string",
+                                "example": "0"
+                              },
+                              "paymentMethod": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "example": "Card"
+                                  },
+                                  "brand": {
+                                    "type": "string",
+                                    "example": "mastercard"
+                                  },
+                                  "cardholderName": {
+                                    "type": "string",
+                                    "example": "kanti"
+                                  },
+                                  "maskedCardNumber": {
+                                    "type": "string",
+                                    "example": "512345******0008"
+                                  },
+                                  "wallet": {},
+                                  "expiryDate": {
+                                    "type": "object",
+                                    "properties": {
+                                      "month": {
+                                        "type": "integer",
+                                        "example": 1,
+                                        "default": 0
+                                      },
+                                      "year": {
+                                        "type": "integer",
+                                        "example": 39,
+                                        "default": 0
+                                      }
+                                    }
+                                  },
+                                  "sameBank": {
+                                    "type": "boolean",
+                                    "example": false,
+                                    "default": true
+                                  },
+                                  "issuingCountry": {},
+                                  "fundingType": {},
+                                  "issuingBank": {},
+                                  "cardCategory": {}
+                                }
+                              },
+                              "codes": {
+                                "type": "object",
+                                "properties": {
+                                  "acquirerCode": {},
+                                  "acquirerMessage": {},
+                                  "responseCode": {
+                                    "type": "string",
+                                    "example": "000"
+                                  },
+                                  "responseMessage": {
+                                    "type": "string",
+                                    "example": "Success"
+                                  },
+                                  "detailedResponseCode": {
+                                    "type": "string",
+                                    "example": "000"
+                                  },
+                                  "detailedResponseMessage": {
+                                    "type": "string",
+                                    "example": "The operation was successful"
+                                  }
+                                }
+                              },
+                              "authenticationDetails": {
+                                "type": "object",
+                                "properties": {
+                                  "acsEci": {
+                                    "type": "string",
+                                    "example": "02"
+                                  },
+                                  "authenticationToken": {
+                                    "type": "string",
+                                    "example": "kHyn+7YFi1EUAREAAAAvNUe6Hv8="
+                                  },
+                                  "paResStatus": {},
+                                  "veResEnrolled": {},
+                                  "xid": {
+                                    "type": "string",
+                                    "example": "6ac70f42-f347-419d-b2b6-ee13b2b9bf7a"
+                                  },
+                                  "accountAuthenticationValue": {},
+                                  "proofXml": {},
+                                  "threeDSecureServerTransactionId": {},
+                                  "acsTransactionId": {
+                                    "type": "string",
+                                    "example": "dc1d9f8c-41d8-4553-9c86-26d3d19d1ce6"
+                                  },
+                                  "directoryServerId": {
+                                    "type": "string",
+                                    "example": "A999999999"
+                                  },
+                                  "dsTransactionId": {
+                                    "type": "string",
+                                    "example": "6ac70f42-f347-419d-b2b6-ee13b2b9bf7a"
+                                  },
+                                  "methodCompleted": {
+                                    "type": "boolean",
+                                    "example": false,
+                                    "default": true
+                                  },
+                                  "methodSupported": {
+                                    "type": "string",
+                                    "example": "SUPPORTED"
+                                  },
+                                  "protocolVersion": {
+                                    "type": "string",
+                                    "example": "2.1.0"
+                                  },
+                                  "requestorId": {
+                                    "type": "string",
+                                    "example": "MAS00001_INT_MPGS_MTTESTGEIDEATESTE"
+                                  },
+                                  "requestorName": {
+                                    "type": "string",
+                                    "example": "Geidea Technology"
+                                  },
+                                  "transactionStatus": {
+                                    "type": "string",
+                                    "example": "Y"
+                                  },
+                                  "statusReasonCode": {},
+                                  "acsReferenceNumber": {},
+                                  "dsReferenceNumber": {}
+                                }
+                              },
+                              "postilionDetails": {},
+                              "terminalDetails": {},
+                              "meezaDetails": {},
+                              "bnplDetails": {},
+                              "bankInstallmentDetails": {},
+                              "correlationId": {
+                                "type": "string",
+                                "example": "01016686-b45a-41c3-8b36-04e2971bfde6"
+                              },
+                              "parentTransactionId": {},
+                              "paymentAttemptId": {
+                                "type": "string",
+                                "example": "e8cbc40e-21cd-4c47-8b7f-d4df44c342c7"
+                              },
+                              "acquirer": {
+                                "type": "object",
+                                "properties": {
+                                  "additionalResponseData": {},
+                                  "batch": {},
+                                  "customData": {},
+                                  "date": {},
+                                  "id": {},
+                                  "merchantId": {
+                                    "type": "string",
+                                    "example": "001222222222"
+                                  },
+                                  "settlementDate": {},
+                                  "time": {},
+                                  "timeZone": {},
+                                  "transactionId": {}
+                                }
+                              },
+                              "authorizationResponse": {
+                                "type": "object",
+                                "properties": {
+                                  "autoExpiry": {},
+                                  "avsCode": {},
+                                  "cardLevelIndicator": {},
+                                  "cardSecurityCodeError": {},
+                                  "cardSecurityCodePresenceIndicator": {},
+                                  "commercialCard": {},
+                                  "commercialCardIndicator": {},
+                                  "financialNetworkCode": {},
+                                  "financialNetworkDate": {},
+                                  "marketSpecificData": {},
+                                  "merchantAdviceCode": {},
+                                  "paySvcData": {},
+                                  "posData": {},
+                                  "posEntryMode": {},
+                                  "posEntryModeChanged": {},
+                                  "processingCode": {},
+                                  "responseCode": {},
+                                  "date": {},
+                                  "responseMessage": {},
+                                  "returnAci": {},
+                                  "time": {},
+                                  "timeZone": {},
+                                  "trackQuality": {},
+                                  "transactionIdentifier": {},
+                                  "transactionIntegrityClass": {},
+                                  "validationCode": {},
+                                  "vpasResponse": {}
+                                }
+                              },
+                              "madaDetails": {},
+                              "refundType": {},
+                              "refundStatus": {},
+                              "isExtensionComplete": {},
+                              "extensionDate": {
+                                "type": "string",
+                                "example": "2024-03-04T13:36:08.5778312"
+                              },
+                              "deviceId": {
+                                "type": "string",
+                                "example": "f4767e8c-6806-4ac5-e345-08dbfbc233db"
+                              },
+                              "createdDate": {
+                                "type": "string",
+                                "example": "2024-03-04T13:33:33.9731001"
+                              },
+                              "createdBy": {
+                                "type": "string",
+                                "example": "PGW"
+                              },
+                              "updatedDate": {
+                                "type": "string",
+                                "example": "2024-03-04T13:36:08.5784054"
+                              },
+                              "updatedBy": {
+                                "type": "string",
+                                "example": "PGW"
+                              }
+                            }
+                          }
+                        },
+                        "orderItems": {
+                          "type": "array"
+                        },
+                        "isTokenPayment": {
+                          "type": "boolean",
+                          "example": false,
+                          "default": true
+                        },
+                        "paymentMethod": {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "example": "Card"
+                            },
+                            "brand": {
+                              "type": "string",
+                              "example": "mastercard"
+                            },
+                            "cardholderName": {
+                              "type": "string",
+                              "example": "otst-PUT"
+                            },
+                            "maskedCardNumber": {
+                              "type": "string",
+                              "example": "512345******0008"
+                            },
+                            "wallet": {},
+                            "expiryDate": {
+                              "type": "object",
+                              "properties": {
+                                "month": {
+                                  "type": "integer",
+                                  "example": 1,
+                                  "default": 0
+                                },
+                                "year": {
+                                  "type": "integer",
+                                  "example": 39,
+                                  "default": 0
+                                }
+                              }
+                            },
+                            "sameBank": {
+                              "type": "boolean",
+                              "example": false,
+                              "default": true
+                            },
+                            "issuingCountry": {},
+                            "fundingType": {},
+                            "issuingBank": {},
+                            "cardCategory": {}
+                          }
+                        },
+                        "totalAuthorizedAmount": {
+                          "type": "integer",
+                          "example": 1850,
+                          "default": 0
+                        },
+                        "totalCapturedAmount": {
+                          "type": "integer",
+                          "example": 1850,
+                          "default": 0
+                        },
+                        "totalRefundedAmount": {
+                          "type": "integer",
+                          "example": 0,
+                          "default": 0
+                        },
+                        "orderSource": {
+                          "type": "string",
+                          "example": "GeideaGateway"
+                        },
+                        "paymentBrands": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "example": "mastercard"
+                          }
+                        },
+                        "multiCurrency": {
+                          "type": "object",
+                          "properties": {
+                            "authCurrency": {
+                              "type": "string",
+                              "example": "EGP"
+                            },
+                            "authAmount": {
+                              "type": "integer",
+                              "example": 1850,
+                              "default": 0
+                            },
+                            "settleCurrency": {
+                              "type": "string",
+                              "example": "EGP"
+                            },
+                            "settleAmount": {
+                              "type": "integer",
+                              "example": 1850,
+                              "default": 0
+                            },
+                            "exchangeRate": {},
+                            "exchangeFeePercentage": {},
+                            "exchangeFeeAmount": {}
+                          }
+                        },
+                        "isTest": {
+                          "type": "boolean",
+                          "example": true,
+                          "default": true
+                        },
+                        "cashOnDelivery": {
+                          "type": "boolean",
+                          "example": false,
+                          "default": true
+                        },
+                        "amountToCollect": {},
+                        "isDownPayment": {
+                          "type": "boolean",
+                          "example": false,
+                          "default": true
+                        },
+                        "exchangeRate": {},
+                        "exchangeFeePercentage": {},
+                        "exchangeFeeAmount": {},
+                        "deviceId": {
+                          "type": "string",
+                          "example": "f4767e8c-6806-4ac5-e345-08dbfbc233db"
+                        },
+                        "gatewayDecision": {
+                          "type": "string",
+                          "example": "ContinueToPay"
+                        },
+                        "subscriptionId": {},
+                        "subscriptionOccurrenceId": {},
+                        "refundType": {},
+                        "refundStatus": {},
+                        "bankId": {
+                          "type": "string",
+                          "example": "1003"
+                        },
+                        "isPayWithToken": {
+                          "type": "boolean",
+                          "example": false,
+                          "default": true
+                        },
+                        "customerName": {},
+                        "customerEmail": {},
+                        "createCustomer": {
+                          "type": "boolean",
+                          "example": false,
+                          "default": true
+                        },
+                        "customerReferenceId": {},
+                        "customerId": {},
+                        "customerPhoneNumber": {},
+                        "customerPhoneCountryCode": {},
+                        "customerCustomValue": {},
+                        "airLine": {},
+                        "createdDate": {
+                          "type": "string",
+                          "example": "2024-03-04T13:33:33.9731001"
+                        },
+                        "createdBy": {
+                          "type": "string",
+                          "example": "PGW"
+                        },
+                        "updatedDate": {
+                          "type": "string",
+                          "example": "2024-03-04T13:34:03.1484588"
+                        },
+                        "updatedBy": {
+                          "type": "string",
+                          "example": "PGW"
+                        }
+                      }
+                    },
+                    "responseMessage": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "detailedResponseMessage": {
+                      "type": "string",
+                      "example": "The operation was successful"
+                    },
+                    "language": {
+                      "type": "string",
+                      "example": "en"
+                    },
+                    "responseCode": {
+                      "type": "string",
+                      "example": "000"
+                    },
+                    "detailedResponseCode": {
+                      "type": "string",
+                      "example": "000"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Result": {
+                    "value": "{\n    \"orderId\": null,\n    \"responseMessage\": \"Payment intent processing failed\",\n    \"detailedResponseMessage\": \"Invalid paymentIntentID for this account\",\n    \"language\": \"EN\",\n    \"responseCode\": \"210\",\n    \"detailedResponseCode\": \"001\"\n}"
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orderId": {},
+                    "responseMessage": {
+                      "type": "string",
+                      "example": "Payment intent processing failed"
+                    },
+                    "detailedResponseMessage": {
+                      "type": "string",
+                      "example": "Invalid paymentIntentID for this account"
+                    },
+                    "language": {
+                      "type": "string",
+                      "example": "EN"
+                    },
+                    "responseCode": {
+                      "type": "string",
+                      "example": "210"
+                    },
+                    "detailedResponseCode": {
+                      "type": "string",
+                      "example": "001"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "x-readme": {
+    "headers": []
+  },
+  "x-readme-fauxas": true
+}

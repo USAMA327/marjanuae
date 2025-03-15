@@ -20,15 +20,14 @@ export default async function handler(
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: "umunir871@gmail.com", // Replace with your Gmail address
-      pass: "qvya kkpt kohj bnnd", // Replace with your app password
+      user: process.env.NEXT_PUBLIC_EMAIL, // Replace with your Gmail address
+      pass:process.env.NEXT_PUBLIC_PASS, // Replace with your app password
     },
   });
 
-  // Define email options
   const mailOptions: nodemailer.SendMailOptions = {
-    from: "umunir871@gmail.com", // Replace with your Gmail address
-    to,
+    from: process.env.EMAIL, // Replace with your Gmail address
+    to: [process.env.EMAIL, to].flat(), // Ensure it's always an array
     subject,
     text,
     html: html || text, // Use HTML if provided, otherwise fallback to plain text

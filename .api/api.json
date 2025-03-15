@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "apis": [
+    {
+      "identifier": "cherry-smart-router",
+      "source": "@cherry-smart-router/v2.0#1j3nn30lty94ydu",
+      "integrity": "sha512-A+FD0W8tEyO2mPbJJTVU5kKtg9Q1EBEVMM2hmb9Zi8iOKAPZ49Gh6iZrKAY3qyjQpXMj5jaVIoPhRjyuvHKaBg==",
+      "installerVersion": "6.1.3"
+    }
+  ]
+}

@@ -3,17 +3,36 @@ import { Metadata } from "next";
 import HelpSection from "@/components/HelpSection";
 
 export const metadata: Metadata = {
-  title: "FAQ - AL MARJAN RENT CARS",
+  title: "FAQ | AL MARJAN RENT CARS UAE",
   description:
-    "Find answers to frequently asked questions about car rentals with AL MARJAN RENT CARS. Learn about required documents, payment methods, delivery charges, and more.",
-  keywords:
-    "FAQ, Car Rental Questions, Rent a Car, UAE, AL MARJAN RENT CARS, Car Rental Requirements, Car Rental Payment, Car Rental Policies",
+    "Find answers to frequently asked questions about car rentals with AL MARJAN RENT CARS in UAE. Learn about required documents, payment methods, delivery charges, border rules, and more.",
+  keywords: [
+    "FAQ",
+    "Car Rental Questions",
+    "Rent a Car UAE",
+    "Car Rental Requirements UAE",
+    "Car Rental Payment Options",
+    "Car Rental Policies",
+    "Car Delivery Charges UAE",
+    "Car Rental Border Rules",
+    "Car Booking Cancellation Policy",
+    "Car Rental Deposit Policy",
+    "Credit Card Requirement for Car Rental",
+    "Rent a Car from Different Locations UAE",
+    "Luxury Car Rental UAE FAQ",
+    "SUV Rental UAE FAQ",
+    "Economy Car Rental UAE FAQ",
+    "Car Rental Security Deposit",
+    "Cross-border Car Rental Rules",
+    "No Show Fee Car Rental",
+  ],
   authors: [{ name: "AL MARJAN RENT CARS" }],
   openGraph: {
-    title: "FAQ - AL MARJAN RENT CARS",
+    title: "FAQ | AL MARJAN RENT CARS UAE",
     description:
-      "Discover answers to common questions about renting a car with AL MARJAN RENT CARS in UAE. Know about documentation, payments, and rental policies.",
+      "Discover answers to common questions about renting a car with AL MARJAN RENT CARS in UAE. Know about documentation, payments, deposits, delivery, and rental policies.",
     type: "website",
+    url: "https://marjanuae.com/faq",
   },
 };
 
@@ -36,7 +55,7 @@ const faqs = [
   {
     question: "Can I change my booking and do I have to pay cancellation fees?",
     answer:
-      "Al Morjan currently does not impose any cancellation or no-show fee on the reservations.\n\nSecure your booking by paying online, and you may cancel anytime free of charge and get a full refund, if needed, without incurring any additional cost.",
+      "Al Marjan currently does not impose any cancellation or no-show fee on the reservations.\n\nSecure your booking by paying online, and you may cancel anytime free of charge and get a full refund, if needed, without incurring any additional cost.",
   },
   {
     question: "Can I drive the rented car outside UAE border?",
@@ -44,7 +63,8 @@ const faqs = [
       "Rented cars are not allowed to cross UAE borders. However, border authority rules are subject to change from time to time. Please refer to the border authority website for updated rules & requirements.",
   },
   {
-    question: "Can I rent a car from one location and drop it off at another location?",
+    question:
+      "Can I rent a car from one location and drop it off at another location?",
     answer:
       "Yes, you can get it delivered or pick it up from one location and drop it off at another location with an extra charge.",
   },
@@ -53,8 +73,6 @@ const faqs = [
 const FAQ = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col pt-28 items-center">
-    
-
       <div className="w-full bg-white shadow-lg rounded-lg p-6">
         <h1 className="text-2xl font-semibold text-primary bg-[#1572D310] px-4 py-3 rounded-sm mb-4 text-center">
           Frequently Asked Questions

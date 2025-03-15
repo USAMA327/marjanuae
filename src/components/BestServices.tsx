@@ -1,25 +1,31 @@
-'use client';
+"use client";
 import React, { useState, useEffect } from "react";
 import { Car } from "@/types/types";
 import CarCard from "./CarCard";
 import Link from "next/link";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
+import AdditionalFeaturesModal from "./BookingModal/AdditionalFeaturesModal";
+import FancyButton from "./FancyButton";
 
 // Component: Best Services Section
 const BestServices: React.FC = () => {
   const [loading, setLoading] = useState(true); // State to manage loading
   const [topCars, setTopCars] = useState<Car[]>([]); // State to store top cars
-
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<Car | undefined>(undefined);
   // Function to listen for real-time updates on top cars
   useEffect(() => {
     const q = query(collection(db, "cars"), where("isTop", "==", true));
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const topCars = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }) as Car); // Cast to Car type
+      const topCars = querySnapshot.docs.map(
+        (doc) =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+          } as Car)
+      ); // Cast to Car type
       setTopCars(topCars);
       setLoading(false); // Set loading to false after data is fetched
     });
@@ -36,16 +42,24 @@ const BestServices: React.FC = () => {
     </div>
   );
 
+  const openModal = (car: Car | undefined) => {
+    setSelectedCar(car);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedCar(undefined);
+  };
+
   return (
     <section className="text-black bg-blend-soft-light pb-32 flex flex-col items-center justify-center">
       {/* Heading Section */}
       <div className="text-center mb-12">
-        <h4 className="text-lg uppercase font-semibold text-primary bg-[#1572D310] px-4 py-3 rounded-sm mb-4 inline-block">
+        <h4 className="text-2xl uppercase font-semibold text-primary bg-[#1572D310] px-4 py-3 rounded-sm mb-4 inline-block animate-bounce">
         Explore our new Models
         </h4>
-        <h2 className="text-3xl font-bold text-[#323234]">
-          Explore Our Top Deal From <br /> Top-Rated Dealer
-        </h2>
+      
       </div>
 
       {/* Display Filtered Deals */}
@@ -58,15 +72,25 @@ const BestServices: React.FC = () => {
               </div>
             ))
           : // Show actual car cards after loading
-            topCars.map((car) => <CarCard key={car.id} car={car} />)}
+            topCars.map((car) => (
+              <CarCard key={car.id} car={car} onClick={() => openModal(car)} />
+            ))}
       </div>
 
       {/* Explore All Button */}
       <Link href={"/fleet"}>
-        <button className="mt-10 px-10 bg-white text-primary hover:text-white border-2 border-primary py-3 rounded-sm hover:bg-secondary transition-colors duration-300">
+        <FancyButton className="mt-10 px-10" variant="outline" color="primary">
           Explore All
-        </button>
+        </FancyButton>
       </Link>
+
+      {/* Additional Features Modal */}
+      {modalOpen && (
+        <AdditionalFeaturesModal
+          car={selectedCar}
+          onClose={closeModal}
+        />
+      )}
     </section>
   );
 };

@@ -18,12 +18,12 @@ import {
 import toast from "react-hot-toast";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA5y4pwbqRzHZy2ScBfVmMqvg5qvqQZRyU",
-  authDomain: "al-marjan-74559.firebaseapp.com",
-  projectId: "al-marjan-74559",
-  storageBucket: "al-marjan-74559.firebasestorage.app",
-  messagingSenderId: "267411467448",
-  appId: "1:267411467448:web:6d7d454a8b05b43781184d"
+  apiKey: process.env.NEXT_PUBLIC_FB_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FB_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FB_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FB_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FB_MESSAGE_SEND_ID,
+  appId: process.env.NEXT_PUBLIC_FB_MESSAGE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);

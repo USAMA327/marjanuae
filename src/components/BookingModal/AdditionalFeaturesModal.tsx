@@ -1,135 +1,218 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
-import { Addon, Car } from "@/types/types";
-import { setDoc, doc, onSnapshot, collection } from "firebase/firestore";
-import { v4 as uuidv4 } from "uuid";
-import { DateRangePicker } from "react-date-range";
+import { Addon, BookingValues, Car, Package } from "@/types/types";
+import { setDoc, doc, onSnapshot, collection, runTransaction, getDoc } from "firebase/firestore";
 import { Icon } from "@iconify/react";
 import DriverDetailsForm from "./DriverDetailsForm";
-import TimeRangePicker from "./TimeRangePicker";
-import CustomSelect from "../CustomSelect";
-import BookingJson from "../../data/bookingData.json";
 import toast from "react-hot-toast";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
+import OldBookingForm from "../OldBookingForm";
+import { useSearchParams } from "next/navigation";
+import PackageSelection from "./PackageSelection";
+import ToggleSwitch from "../ToggleSwitch";
+import BookingSummary from "./BookingSummary";
+import RefundableDeposit from "./RefunableDeposit";
+import moment from "moment";
+import axios from "axios";
+
 interface ModalProps {
   car?: Car;
   onClose: () => void;
-  location?: string | null;
 }
 
-const AdditionalFeaturesModal: React.FC<ModalProps> = ({
-  car,
-  onClose,
-  location,
-}) => {
+
+
+const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
   const { user } = useAuth();
-  const [selectedAddOns, setSelectedAddOns] = useState<Record<string, number>>(
-    {}
-  );
-  const [selectionRange, setSelectionRange] = useState({
-    startDate: new Date(),
-    endDate: new Date(new Date().setDate(new Date().getDate() + 2)), // Two days greater
-    key: "selection",
-  });
-  
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(
-    location || ""
-  );
+  const searchParams = useSearchParams();
+  const params = new URLSearchParams(searchParams?.toString());
 
+  // Default values from query params
+  const getDefaultValues = (): BookingValues => ({
+    location: params.get("location") || "",
+    dropoffLocation: params.get("dropoffLocation") || "",
+    pickupDate: params.get("pickupDate") ? new Date(params.get("pickupDate")!) : undefined,
+    pickupTime: params.get("pickupTime") ? new Date(params.get("pickupTime")!) : undefined,
+    dropoffDate: params.get("dropoffDate") ? new Date(params.get("dropoffDate")!) : undefined,
+    dropoffTime: params.get("dropoffTime") ? new Date(params.get("dropoffTime")!) : undefined,
+  });
+
+  const [values, setValues] = useState<BookingValues>(getDefaultValues());
+  const [selectedAddOns, setSelectedAddOns] = useState<Record<string, number>>({});
   const [addons, setAddons] = useState<Addon[]>([]);
-  const [_loading, setLoading] = useState(true);
-  const [_error, setError] = useState("");
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [timeRange, setTimeRange] = useState({
-    pickup: "10:00 AM",
-    dropoff: "10:00 AM",
-  });
-
   const [driverDetails, setDriverDetails] = useState<any>(null);
   const [apiLoader, setApiLoader] = useState(false);
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [selectedPackage, setSelectedPackage] = useState<Package |  null>(null);
+  const [mileStone,setMileStone]=useState(true)
+  const [apiloading, setApiLoading] = useState(true);
+  const [currentDiscount, setCurrentDiscount] = useState<number>(0);
   if (!car) return null;
+  useEffect(() => {
+    const discountDocId = "QZef7kBLZHRZGu2kUYt9"; 
+    const fetchDiscount = async () => {
+      try {
+        const docRef = doc(db, "discount", discountDocId);
+        const docSnap = await getDoc(docRef);
 
-  const numberOfDays = useMemo(
-    () =>
-      Math.ceil(
-        (selectionRange.endDate.getTime() -
-          selectionRange.startDate.getTime()) /
-          (1000 * 3600 * 24)
-      ),
-    [selectionRange]
-  );
+        if (docSnap.exists()) {
+          setCurrentDiscount(docSnap.data().discount);
+        } else {
+          console.error("No discount document found.");
+        }
+      } catch (error) {
+        toast.error("Error fetching discount!");
+      } finally {
+        setApiLoading(false);
+      }
+    };
 
-  const basePrice = useMemo(
-    () => car.price * numberOfDays,
-    [car.price, numberOfDays]
-  );
-
-  const toggleAddOn = useCallback((id: string | number) => {
-    setSelectedAddOns((prev) => {
-      const updated = { ...prev };
-      updated[id] ? delete updated[id] : (updated[id] = 1);
-      return updated;
-    });
+    fetchDiscount();
   }, []);
 
-  const addOnsTotal = useMemo(
-    () =>
-      addons.reduce((total, addon) => {
-        const quantity = selectedAddOns[addon.id] || 0;
-        if (quantity > 0) {
-          const price =
-            car.category === "Economy"
-              ? addon.priceEconomy
-              : car.category === "SUVs"
-              ? addon.priceSmallSUV
-              : car.category === "Mid size Sedan"
-              ? addon.priceStandardSUV
-              : addon.price7Seater;
+  // Calculate number of days
+  const numberOfDays = useMemo(() => {
+    if (values.pickupDate && values.dropoffDate) {
+      return Math.ceil(
+        (values.dropoffDate.getTime() - values.pickupDate.getTime()) / (1000 * 3600 * 24)
+      );
+    }
+    return 0;
+  }, [values.pickupDate, values.dropoffDate]);
 
-          return (
-            total +
-            (addon.perDay ? price * numberOfDays * quantity : price * quantity)
-          );
-        }
-        return total;
-      }, 0),
-    [addons, selectedAddOns, numberOfDays, car.category]
-  );
+  // Calculate base price
+  const basePrice = useMemo(() => car.price * numberOfDays, [car.price, numberOfDays]);
 
-  const finalTotal = useMemo(
-    () => basePrice + addOnsTotal,
-    [basePrice, addOnsTotal]
-  );
+  // Calculate add-ons total
+  const addOnsTotal = useMemo(() => {
+    return addons.reduce((total, addon) => {
+      const quantity = selectedAddOns[addon.id] || 0;
+      if (quantity > 0) {
+        const price =
+          car.category === "Economy"
+            ? addon.priceEconomy
+            : car.category === "SUVs"
+            ? addon.priceSmallSUV
+            : car.category === "Mid size Sedan"
+            ? addon.priceStandardSUV
+            : addon.price7Seater;
 
-  const handleBooking = async () => {
+        return total + (addon.perDay ? price * numberOfDays * quantity : price * quantity);
+      }
+      return total;
+    }, 0);
+  }, [addons, selectedAddOns, numberOfDays, car.category]);
+
+  // Calculate final total
+  const finalTotal = useMemo(() => basePrice + addOnsTotal, [basePrice, addOnsTotal]);
+
+  // Calculate discount (25% of base price)
+  const discount = useMemo(() => basePrice * currentDiscount, [basePrice,currentDiscount]);
+
+  // Calculate discounted total
+  const discountedTotal = useMemo(() => finalTotal - discount, [finalTotal, discount]);
+
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // const initiatePayment = async () => {
+
+  //   interface Customer {
+  //     name: string;
+  //     email: string;
+  //     phoneCountryCode: string;
+  //     phoneNumber: string;
+  //   }
+    
+  //   interface EInvoiceDetails {
+  //     subtotal: number;
+  //     grandTotal: number;
+  //     extraChargesType: string;
+  //     invoiceDiscountType: string;
+  //   }
+
+    
+  //   try {
+  //     const response = await fetch('/api/initiate-payment', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         amount: 20,
+  //         currency: 'SAR',
+  //         customer: {
+  //           name: 'Kiran',
+  //           email: 'testmail@geidea.com',
+  //           phoneCountryCode: '+20',
+  //           phoneNumber: '8003030083',
+  //         } as Customer,
+  //         eInvoiceDetails: {
+  //           subtotal: 20,
+  //           grandTotal: 20,
+  //           extraChargesType: 'Amount',
+  //           invoiceDiscountType: 'Amount',
+  //         } as EInvoiceDetails,
+  //       }),
+  //     });
+  
+  //     const data = await response.json();
+  //     console.log('Payment Response:', data);
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //   }
+  // };
+  
+
+  // Handle booking submission
+  const handleBooking = async (isPayNow: boolean) => {
     setApiLoader(true);
-    const bookingId = uuidv4();
-    const selectedAddOnsList = addons.filter(
-      (addon) => selectedAddOns[addon.id]
-    );
-    const carRef = doc(db, "cars", car.id);
-    const userRef = user?.uid ? doc(db, "users", user?.uid) : null;
+    const generateAutoIncrementId = async () => {
+      const counterRef = doc(db, "metadata", "counter");
+    
+      return await runTransaction(db, async (transaction) => {
+        const counterDoc = await transaction.get(counterRef);
+        let newId = 1;
+    
+        if (counterDoc.exists()) {
+          const currentValue = counterDoc.data().value;
+          newId = currentValue + 1;
+          transaction.update(counterRef, { value: newId });
+        } else {
+          transaction.set(counterRef, { value: newId });
+        }
+    
+        return newId;
+      });
+    };
+    
+    const bookingId = await generateAutoIncrementId(); // Get new ID
+    const selectedAddOnsList = addons.filter((addon) => selectedAddOns[addon.id]);
 
     const bookingDetails = {
       id: bookingId,
-      user: userRef,
-      car: carRef,
-      pickUpDate: selectionRange.startDate.toDateString(),
-      dropOffDate: selectionRange.endDate.toDateString(),
-      pickUpTime: timeRange.pickup,
-      dropOffTime: timeRange.dropoff,
-      location: selectedLocation,
-      selectedAddOns: selectedAddOnsList,
+      user: user?.uid ? doc(db, "users", user.uid) : null,
+      car: doc(db, "cars", car.id),
+      location: values.location,
+      dropoffLocation:values.dropoffLocation,
+      pickupDate: values.pickupDate?.toISOString(),
+      pickupTime: values.pickupTime?.toISOString(),
+      dropoffDate:values.dropoffDate?.toISOString(),
+      dropoffTime:values.dropoffTime?.toISOString(),
       totalPrice: finalTotal,
+      isPaid: isPayNow,
+      selectedPackage:selectedPackage,
       createdAt: new Date().toISOString(),
+      selectedAddOns: selectedAddOnsList,
+      mileStone:mileStone,
       status: 1,
+      numberOfDays:numberOfDays
     };
 
     try {
       if (user) {
-        await setDoc(doc(db, "users", user?.uid), {
+        await setDoc(doc(db, "users", user.uid), {
           displayName: driverDetails.displayName,
           phone: driverDetails.contactNumber,
           email: driverDetails.email,
@@ -138,133 +221,129 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
         });
       }
 
-      await setDoc(doc(db, "bookings", bookingId), bookingDetails);
+      await setDoc(doc(db, "bookings", bookingId.toString()), bookingDetails);
 
-      // Send email with booking details
+      // Send confirmation email
       const emailResponse = await fetch("/api/send-email", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: driverDetails.email, // Send email to the user's email
-          subject: "Your Booking Confirmation", // Email subject
+          to: driverDetails.email,
+          subject: "Your Booking Confirmation",
           text: `Thank you for your booking! Here are your details:
-            Booking ID: ${bookingId}
-            Car: ${car.name}
-            Pickup Date: ${selectionRange.startDate.toDateString()}
-            Dropoff Date: ${selectionRange.endDate.toDateString()}
-            Pickup Time: ${timeRange.pickup}
-            Dropoff Time: ${timeRange.dropoff}
-            Location: ${selectedLocation}
-            Total Price: AED ${finalTotal}
-            Selected Add-ons: ${selectedAddOnsList
-              .map((addon) => addon.name)
-              .join(", ")}
-          `,
-          html: `
-          <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking Confirmation</title>
-</head>
-<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; line-height: 1.6; margin: 0; padding: 0;">
-  <div style="max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); overflow: hidden;">
-    <div style="background-color: #dbeafe; color: #045A85; padding: 20px; text-align: center;">
-      <h1 style="font-size: 24px; margin: 0;">Booking Confirmation</h1>
-    </div>
-    <div style="padding: 20px;">
-      <h2 style="font-size: 20px; margin-bottom: 15px; color: #045A85; text-align: center;">Thank you for your booking! 🎉</h2>
-      <p style="margin-bottom: 15px;">Your booking has been confirmed. Below are the details of your reservation:</p>
-      <div style="background-color: #dbeafe; color: #045A85; padding: 15px; border-radius: 4px; text-align: center; margin-bottom: 20px; font-weight: bold; border: 1px solid #045A85;">
-        <strong>Booking ID:</strong> ${bookingDetails.id}
-      </div>
-      <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        <ul style="list-style: none;">
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Car:</strong> ${car.name}
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Pickup Date:</strong> ${bookingDetails.pickUpDate}
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Date:</strong> ${bookingDetails.dropOffDate}
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Pickup Time:</strong> ${bookingDetails.pickUpTime}
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Dropoff Time:</strong> ${bookingDetails.dropOffTime}
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Location:</strong> ${selectedLocation}
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Total Price:</strong> $${bookingDetails.totalPrice}
-          </li>
-          <li style="padding: 10px 0;">
-            <strong style="display: inline-block; width: 120px; color: #555;">Selected Add-ons:</strong> ${selectedAddOnsList.map((addon) => addon.name).join(", ")}
-          </li>
-        </ul>
-      </div>
-      <p style="text-align: center;">If you have any questions, feel free to contact us.</p>
-    </div>
-    <div style="background-color: #f1f1f1; padding: 10px; text-align: center; font-size: 14px; color: #666;">
-      <p>&copy; 2010 Al Marjan. All rights reserved.</p>
-    </div>
-  </div>
-</body>
-</html>
-          `,
+          Booking ID: ${bookingId}
+          Car: ${car.name}
+          
+        `,
+      
+          html:`<!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Booking Confirmation</title>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+          </head>
+          <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; line-height: 1.6; margin: 0; padding: 0;">
+            <div style="max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); overflow: hidden;">
+              
+              <!-- Header -->
+              <div style="background-color: #dbeafe; color: #045A85; padding: 20px; text-align: center;">
+                <h1 style="font-size: 24px; margin: 0;">Booking Confirmation</h1>
+              </div>
+          
+              <!-- Body -->
+              <div style="padding: 20px;">
+                <h2 style="font-size: 20px; margin-bottom: 15px; color: #045A85; text-align: center;">Thank you for your booking! 🎉</h2>
+                <p style="margin-bottom: 15px;">Your booking has been confirmed. Below are the details of your reservation:</p>
+                
+                <!-- Booking ID -->
+                <div style="background-color: #dbeafe; color: #045A85; padding: 15px; border-radius: 4px; text-align: center; margin-bottom: 20px; font-weight: bold; border: 1px solid #045A85;">
+                  <strong>Booking ID:</strong> ${bookingDetails.id}
+                </div>
+          
+                <!-- Booking Details -->
+                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                  <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                      <strong style="display: inline-block; width: 140px; color: #555;">Car:</strong> ${car.name}
+                    </li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                      <strong style="display: inline-block; width: 140px; color: #555;">Pickup Date & Time:</strong> 
+                      ${moment(bookingDetails.pickupDate).format("ddd, DD, MM, YYYY")} | ${moment(bookingDetails.pickupTime).format("hh:mm A")}
+                    </li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                      <strong style="display: inline-block; width: 140px; color: #555;">Dropoff Date & Time:</strong> 
+                      ${moment(bookingDetails.dropoffDate).format("ddd, DD, MM, YYYY")} | ${moment(bookingDetails.dropoffTime).format("hh:mm A")}
+                    </li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                      <strong style="display: inline-block; width: 140px; color: #555;">Pickup Location:</strong> ${bookingDetails.location}
+                    </li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                      <strong style="display: inline-block; width: 140px; color: #555;">Dropoff Location:</strong> ${bookingDetails.dropoffLocation}
+                    </li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                      <strong style="display: inline-block; width: 140px; color: #555;">Selected Package:</strong> ${bookingDetails?.selectedPackage?.name}
+                    </li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                      <strong style="display: inline-block; width: 140px; color: #555;">Payment Status:</strong> ${bookingDetails.isPaid ? "Paid" : "Payable upon pickup"}
+                    </li>
+                    <!-- Pricing -->
+                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                      <strong style="display: inline-block; width: 140px; color: #555;">Total Price:</strong> AED ${bookingDetails.totalPrice}
+                    </li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                      <strong style="display: inline-block; width: 140px; color: #555;">Discount:</strong> -AED ${discount}
+                    </li>
+                    <li style="padding: 10px 0;">
+                      <strong style="display: inline-block; width: 140px; color: #555;">Payable upon pickup:</strong> AED ${discountedTotal}
+                    </li>
+                  </ul>
+                </div>
+          
+                <p style="text-align: center;">If you have any questions, feel free to contact us.</p>
+              </div>
+          
+              <!-- Footer -->
+              <div style="background-color: #f1f1f1; padding: 10px; text-align: center; font-size: 14px; color: #666;">
+                <p>&copy; 2010 Al Marjan. All rights reserved.</p>
+              </div>
+          
+            </div>
+          </body>
+          </html>
+          `
         }),
       });
 
-      await emailResponse.json();
       if (emailResponse.ok) {
-        toast.success(
-          "Booking successfully added and confirmation email sent!"
-        );
+        toast.success("Booking successfully added and confirmation email sent!");
       } else {
         toast.error("Booking added, but failed to send confirmation email.");
       }
 
       onClose();
     } catch (error) {
-      console.log("Error adding booking to Firestore", error);
+      console.error("Error adding booking to Firestore", error);
       toast.error("Error adding booking to Firestore");
     } finally {
       setApiLoader(false);
     }
   };
 
-  const handleSelect = (ranges: any) => {
-    setSelectionRange(ranges.selection);
-  };
-
-  const nextStep = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
-  };
-
-  const prevStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
-  };
-
+  // Fetch add-ons from Firestore
   useEffect(() => {
     const unsubscribe = onSnapshot(
       collection(db, "addons"),
       (snapshot) => {
-        const addonsData: Addon[] = [];
-        snapshot.forEach((doc) => {
-          addonsData.push({ id: doc.id, ...doc.data() } as Addon);
-        });
+        const addonsData: Addon[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Addon[];
         setAddons(addonsData);
-        setLoading(false);
       },
       (err) => {
         toast.error("Error while fetching addons!");
-        setError("Error fetching addons");
         console.error(err);
       }
     );
@@ -272,9 +351,15 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
     return () => unsubscribe();
   }, []);
 
+  // Step navigation
+  const nextStep = () => setCurrentStep((prev) => (prev < 5 ? prev + 1 : prev));
+  const prevStep = () => setCurrentStep((prev) => (prev > 1 ? prev - 1 : prev));
+
+  
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white w-screen h-screen md:w-[90%] md:h-[90%] lg:w-[80%] lg:h-[80%] xl:w-[70%] xl:h-[70%] rounded-lg shadow-lg relative overflow-y-auto">
+      <div className="bg-white w-screen h-screen   rounded-lg shadow-lg relative overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 p-2 rounded-full bg-white shadow-lg hover:bg-gray-100 transition-all duration-300"
@@ -286,165 +371,83 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        <div className="p-8">
+       
+
+        <div className="p-2 md:p-8">
+          {/* Progress Bar */}
           <div className="flex justify-center my-8">
-            <div className="block lg:hidden w-full text-center ">
-              {/* Progress bar container */}
-              <div className="w-full bg-gray-200  h-2.5">
-                {/* Progress bar */}
-                <div
-                  className="bg-primary h-2.5 mt-2 "
-                  style={{ width: `${(currentStep / 4) * 100}%` }}
-                ></div>
-              </div>
-              {/* Display percentage text */}
-              <p className="text-sm mt-1">
-                {Math.round((currentStep / 4) * 100)}%
-              </p>
-            </div>
+          {/* <button onClick={initiatePayment} disabled={loading}>
+        {loading ? 'Processing...' : 'Pay Now'}
+      </button> */}
             <div className="hidden lg:flex items-center space-x-4">
-              <div
-                className={`px-6 py-2 flex items-center justify-center gap-2 rounded-lg transition-all duration-300 ${
-                  currentStep === 1 || currentStep > 1
-                    ? "bg-primary text-white shadow-lg"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                <Icon
-                  icon="mdi:calendar-check"
-                  className={`w-6 h-6 ${
-                    currentStep === 1 || currentStep > 1
-                      ? "text-white"
-                      : "text-gray-600"
-                  }`}
-                />
-                <span className="font-semibold">Booking Dates</span>
-              </div>
-
-              <div
-                className={`w-20 h-1 ${
-                  currentStep > 1 ? "bg-primary" : "bg-gray-200"
-                }`}
-              ></div>
-
-              <div
-                className={`px-6 py-2 flex items-center justify-center gap-2 rounded-lg transition-all duration-300 ${
-                  currentStep === 2 || currentStep > 2
-                    ? "bg-primary text-white shadow-lg"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                <Icon
-                  icon="mdi:plus-box"
-                  className={`w-6 h-6 ${
-                    currentStep === 2 || currentStep > 2
-                      ? "text-white"
-                      : "text-gray-600"
-                  }`}
-                />
-                <span className="font-semibold">Add-ons</span>
-              </div>
-
-              <div
-                className={`w-20 h-1 ${
-                  currentStep > 2 ? "bg-primary" : "bg-gray-200"
-                }`}
-              ></div>
-
-              <div
-                className={`px-6 py-2 flex items-center justify-center gap-2 rounded-lg transition-all duration-300 ${
-                  currentStep === 3 || currentStep > 3
-                    ? "bg-primary text-white shadow-lg"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                <Icon
-                  icon="mdi:account"
-                  className={`w-6 h-6 ${
-                    currentStep === 3 || currentStep > 3
-                      ? "text-white"
-                      : "text-gray-600"
-                  }`}
-                />
-                <span className="font-semibold">Driver Details</span>
-              </div>
-
-              <div
-                className={`w-20 h-1 ${
-                  currentStep > 3 ? "bg-primary" : "bg-gray-200"
-                }`}
-              ></div>
-
-              <div
-                className={`px-6 py-2 flex items-center justify-center gap-2 rounded-lg transition-all duration-300 ${
-                  currentStep === 4
-                    ? "bg-primary text-white shadow-lg"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                <Icon
-                  icon="mdi:credit-card-check"
-                  className={`w-6 h-6 ${
-                    currentStep === 4 ? "text-white" : "text-gray-600"
-                  }`}
-                />
-                <span className="font-semibold">Pay Now</span>
-              </div>
+              {[1, 2, 3, 4, 5].map((step) => (
+                <React.Fragment key={step}>
+                  <div
+                    className={`px-6 py-2 flex items-center justify-center gap-2 rounded-lg transition-all duration-300 ${
+                      currentStep >= step ? "bg-primary text-white shadow-lg" : "bg-gray-200 text-gray-600"
+                    }`}
+                  >
+                    <Icon
+                      icon={
+                        step === 1
+                          ? "mdi:calendar-check"
+                          : step === 2
+                          ? "mdi:account"
+                          : step === 3
+                          ? "mdi:plus-box"
+                          : step === 4
+                          ? "mdi:package-variant"
+                          : "mdi:credit-card-check"
+                      }
+                      className={`w-6 h-6 ${currentStep >= step ? "text-white" : "text-gray-600"}`}
+                    />
+                    <span className="font-semibold">
+                      {step === 1
+                        ? "Booking Dates"
+                        : step === 2
+                        ? "Driver Details"
+                        : step === 3
+                        ? "Add-ons"
+                        : step === 4
+                        ? "Package"
+                        : "Pay Now"}
+                    </span>
+                  </div>
+                  {step < 5 && (
+                    <div
+                      className={`w-20 h-1 ${currentStep > step ? "bg-primary" : "bg-gray-200"}`}
+                    ></div>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
           </div>
 
+          
+          
+          {/* Step 1: Booking Dates */}
           {currentStep === 1 && (
-            <div>
-              <div className="my-4">
-                <CustomSelect
-                  isTop={true}
-                  options={BookingJson}
-                  selectedValue={selectedLocation ? selectedLocation : ""}
-                  onSelect={(e: string) => {
-                    setSelectedLocation(e);
-                  }}
-                  placeholder="Choose a pick-up location"
-                />
-              </div>
-
-              <h3 className="text-xl font-bold mb-4">
-                Select Pickup and Dropoff Dates
-              </h3>
-              <DateRangePicker
-                ranges={[selectionRange]}
-                onChange={handleSelect}
-                minDate={new Date()}
-                className="w-full border rounded-sm shadow-sm"
-              />
-              <div className="mt-4">
-                <TimeRangePicker
-                  timeRange={timeRange}
-                  onTimeRangeChange={setTimeRange}
-                />
-              </div>
-              <div className="flex justify-end mt-8">
-                <button
-                  onClick={nextStep}
-                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-2 rounded-sm text-lg font-medium transition-all duration-300"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+            <OldBookingForm title="Next" nextStep={nextStep} setValues={setValues} defaultValues={values} showFull={false} />
           )}
 
+          {/* Step 2: Driver Details */}
           {currentStep === 2 && (
+            <DriverDetailsForm
+              prevStep={prevStep}
+              onSubmit={(values) => {
+                setDriverDetails(values);
+                nextStep();
+              }}
+            />
+          )}
+
+          {/* Step 3: Add-ons */}
+          {currentStep === 3 && (
             <div>
-              <h3 className="text-xl font-bold mb-4">Additional Features</h3>
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-gray-100">
@@ -456,15 +459,10 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                 </thead>
                 <tbody>
                   {addons.map((addon) => (
-                    <tr
-                      key={addon.id}
-                      className="border-b hover:bg-gray-50 transition-all duration-300"
-                    >
+                    <tr key={addon.id} className="border-b hover:bg-gray-50 transition-all duration-300">
                       <td className="p-3">
                         <div className="font-semibold">{addon.name}</div>
-                        <div className="text-sm text-gray-600 hidden md:block">
-                          {addon.description}
-                        </div>
+                        <div className="text-sm text-gray-600 hidden md:block">{addon.description}</div>
                       </td>
                       <td className="p-3">
                         AED{" "}
@@ -479,22 +477,18 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                       <td className="p-3">{addon.perDay ? "Yes" : "No"}</td>
                       <td className="p-3">
                         {addon.type === "boolean" ? (
-                          <input
-                            type="checkbox"
-                            checked={!!selectedAddOns[addon.id]}
-                            onChange={() => toggleAddOn(addon.id)}
-                            className="w-5 h-5 cursor-pointer"
-                          />
+                         <ToggleSwitch
+                         checked={!!selectedAddOns[addon.id]}
+                         onChange={() => setSelectedAddOns((prev) => ({ ...prev, [addon.id]: prev[addon.id] ? 0 : 1 }))}
+                         
+                       />
                         ) : (
                           <input
                             type="number"
                             min={0}
                             value={selectedAddOns[addon.id] || 0}
                             onChange={(e) =>
-                              setSelectedAddOns((prev) => ({
-                                ...prev,
-                                [addon.id]: parseInt(e.target.value),
-                              }))
+                              setSelectedAddOns((prev) => ({ ...prev, [addon.id]: parseInt(e.target.value) }))
                             }
                             className="w-20 p-2 border rounded-md"
                           />
@@ -504,6 +498,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                   ))}
                 </tbody>
               </table>
+
               <div className="flex justify-between mt-8">
                 <button
                   onClick={prevStep}
@@ -521,94 +516,44 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
             </div>
           )}
 
-          {currentStep === 3 && (
-            <div>
-              <h3 className="text-xl font-bold mb-4">Driver Details</h3>
-              <DriverDetailsForm
-                prevStep={prevStep}
-                onSubmit={(values) => {
-                  setDriverDetails(values);
-                  nextStep();
-                }}
-              />
-            </div>
+          {/* Step 4: Package Selection */}
+          {currentStep === 4 && (
+            <PackageSelection
+              mileStone={mileStone}
+              setMileStone={setMileStone}
+              total={basePrice}
+          packages={packages}
+          setPackages={setPackages}
+          selectedPackage={selectedPackage}
+          onSelectPackage={(packageName) => setSelectedPackage(packageName)} // Pass setSelectedPackage
+          onNext={nextStep}
+          onPrev={prevStep}
+          setSelectedPackage={setSelectedPackage} // Pass setSelectedPackage
+        />
           )}
 
-          {currentStep === 4 && (
+          {/* Step 5: Summary and Payment */}
+          {currentStep === 5 && (
             <div>
-              <h3 className="text-xl font-bold mb-4">Summary</h3>
+           
 
-              <div className="bg-gray-50 p-6 rounded-lg mb-8">
-                <div className="space-y-3">
-                  <div className="flex flex-col md:flex-row justify-between">
-                    <span className="text-lg">Location:</span>
-                    <span className="text-lg text-right font-semibold">
-                      {selectedLocation}
-                    </span>
-                  </div>
-                  <div className="flex flex-col md:flex-row  justify-between">
-                    <span className="text-lg">Date Range:</span>
-                    <span className="text-lg text-right font-semibold">
-                      {selectionRange.startDate.toDateString()} -{" "}
-                      {selectionRange.endDate.toDateString()}
-                    </span>
-                  </div>
-                  <div className="flex flex-col md:flex-row  justify-between">
-                    <span className="text-lg">Time Range:</span>
-                    <span className="text-lg text-right font-semibold">
-                      {timeRange.pickup} - {timeRange.dropoff}
-                    </span>
-                  </div>
-                  <div className="flex flex-col md:flex-row  justify-between">
-                    <span className="text-lg">
-                      Base Price ({numberOfDays} days):
-                    </span>
-                    <span className="text-lg text-right font-semibold">
-                      AED {basePrice}
-                    </span>
-                  </div>
-                  {addons
-                    .filter((addon) => selectedAddOns[addon.id])
-                    .map((addon) => (
-                      <div key={addon.id} className="flex flex-col md:flex-row  justify-between">
-                        <span className="text-lg">
-                          {addon.name} (
-                          {addon.perDay ? `${numberOfDays} days` : "1 time"}):
-                        </span>
-                        <span className="text-lg text-right font-semibold">
-                          AED{" "}
-                          {addon.perDay
-                            ? (car.category === "Economy"
-                                ? addon.priceEconomy
-                                : car.category === "SUVs"
-                                ? addon.priceSmallSUV
-                                : car.category === "Mid size Sedan"
-                                ? addon.priceStandardSUV
-                                : addon.price7Seater) *
-                              numberOfDays *
-                              (addon.type === "number"
-                                ? selectedAddOns[addon.id]
-                                : 1)
-                            : (car.category === "Economy"
-                                ? addon.priceEconomy
-                                : car.category === "SUVs"
-                                ? addon.priceSmallSUV
-                                : car.category === "Mid size Sedan"
-                                ? addon.priceStandardSUV
-                                : addon.price7Seater) *
-                              (addon.type === "number"
-                                ? selectedAddOns[addon.id]
-                                : 1)}
-                        </span>
-                      </div>
-                    ))}
-                  <div className="flex justify-between border-t pt-3">
-                    <span className="text-xl font-bold">Total Price:</span>
-                    <span className="text-xl font-bold">AED {finalTotal}</span>
-                  </div>
-                </div>
-              </div>
+              <BookingSummary
+                
+                car={car}
+        values={values}
+        basePrice={basePrice}
+        numberOfDays={numberOfDays}
+        addons={addons}
+        selectedAddOns={selectedAddOns}
+        selectedPackage={selectedPackage}
+                discount={discount}
+                discountPercentage={currentDiscount *100}
+        finalTotal={finalTotal}
+                discountedTotal={discountedTotal}
+                mileStone={mileStone}
+              />
 
+             <RefundableDeposit/>
               <div className="flex flex-col md:flex-row justify-between gap-4">
                 <button
                   onClick={prevStep}
@@ -616,24 +561,26 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({
                 >
                   Back
                 </button>
-                <div className="flex flex-col md:flex-row  gap-4">
+                <div className="flex flex-col md:flex-row gap-4">
                   <button
                     disabled={apiLoader}
-                    onClick={() => handleBooking()}
+                    onClick={() => handleBooking(true)}
                     className={`${
-                      apiLoader ? "bg-green-400" : "bg-green-600"
-                    } text-white px-8 py-2 rounded-sm text-lg font-medium hover:bg-green-700 transition-all duration-300`}
+                      apiLoader ? "bg-success-400" : "bg-success-600"
+                    } text-white px-8 py-2 rounded-sm text-lg font-medium hover:bg-success-700 transition-all duration-300`}
                   >
-                    {apiLoader ? "Loading..." : "Pay Now (Save upto 25%)"}
+                    {apiLoader ? "Loading..." : `Pay Now (Save AED ${discount})`}
                   </button>
+
+                
                   <button
-                    disabled={apiLoader}
-                    onClick={() => handleBooking()} // You can add a different handler for Pay Later if needed
+                    disabled={apiLoader || apiloading}
+                    onClick={() => handleBooking(false)}
                     className={`${
                       apiLoader ? "bg-blue-400" : "border border-blue-600"
                     } text-blue-600 px-8 py-2 rounded-sm text-lg font-medium hover:bg-blue-700 hover:text-white transition-all duration-300`}
                   >
-                    {apiLoader ? "Loading..." : "Pay Later"}
+                    {apiLoader ? "Loading..." : "Book now & Pay Later"}
                   </button>
                 </div>
               </div>

@@ -1,14 +1,15 @@
 import { Car } from '@/types/types';
 import Image from 'next/image';
-import React from 'react'
+import React, { ReactNode } from 'react'
 import BookNowButton from './BookNowButton';
+import { Icon } from '@iconify/react';
 
 
 // Component: Feature
-const Feature: React.FC<{ icon: string; label: string }> = ({ icon, label }) => (
+const Feature: React.FC<{ icon: ReactNode; label: string }> = ({ icon, label }) => (
     <div className="flex justify-between">
       <p className="flex items-center gap-2">
-        <i className={`icon-[${icon}] text-[16px] text-[#959595]`} />
+       {icon}
         <span className="text-[16px]">{label}</span>
       </p>
     </div>
@@ -25,15 +26,14 @@ const Feature: React.FC<{ icon: string; label: string }> = ({ icon, label }) => 
         </div>
   
         {/* Car Name */}
-        <h3 className="font-medium text-lg mt-4 mb-2">{car.name}</h3>
+        <h3 className="font-medium text-lg mt-4 mb-2">{car.name}  <small className="text-slate-500 text-xs">| Similar</small></h3>
         <hr className="my-2" />
   
         {/* Features */}
         <div className="py-2 space-y-2">
-          <Feature icon="mdi--account-group" label={`${car.passengers} Passenger`} />
-          <Feature icon="mdi--car-shift-pattern" label={car.isAuto ? "Automatic" : "Manual"} />
-          <Feature icon="mdi--snowflake" label={car.airConditioner ? "AC" : "No AC"} />
-          <Feature icon="mdi--car-door" label={`${car.doors} Doors`} />
+          <Feature icon={<Icon icon="fluent:people-audience-24-regular"  className='size-5 text-primary' />} label={`${car.passengers} Passenger`} />
+          <Feature icon={<Icon icon="game-icons:gear-stick-pattern" className='size-5 text-primary' />} label={car.isAuto ? "Automatic" : "Manual"} />
+          <Feature icon={<Icon icon="ph:suitcase-light" className='size-5 text-primary' />} label={`${car.bags} Bags`} />
         </div>
   
         <hr className="my-2" />
