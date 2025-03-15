@@ -104,8 +104,10 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
     }, 0);
   }, [addons, selectedAddOns, numberOfDays, car.category]);
 
+  const packagePrice=(selectedPackage?.newPrice || 0) * numberOfDays
+
   // Calculate final total
-  const finalTotal = useMemo(() => basePrice + addOnsTotal, [basePrice, addOnsTotal]);
+  const finalTotal = useMemo(() => basePrice + addOnsTotal + packagePrice, [basePrice, addOnsTotal,packagePrice]);
 
   // Calculate discount (25% of base price)
   const discount = useMemo(() => basePrice * currentDiscount, [basePrice,currentDiscount]);
