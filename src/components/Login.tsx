@@ -3,7 +3,9 @@
 import { useFormik } from "formik";
 import { LoginFormValues, LoginProps } from "@/types/types";
 import { loginValidationSchema } from "@/utils/validatioSchema";
-import { signInWithEmail, signInWithGoogle } from "@/firebase/firebase";
+import { auth, signInWithEmail, signInWithGoogle } from "@/firebase/firebase";
+import { sendPasswordResetEmail } from "firebase/auth";
+import toast from "react-hot-toast";
 
 const Login = ({ onSwitchToSignup }: LoginProps) => {
   const formik = useFormik<LoginFormValues>({
@@ -27,6 +29,19 @@ const Login = ({ onSwitchToSignup }: LoginProps) => {
     }
   };
 
+  const handleForgotPassword = async (email:string) => {
+    if (email) {
+      try {
+        await sendPasswordResetEmail(auth, email);
+        toast.success("Check Your email!")
+      } catch (error) {
+        
+        toast.error("Error sending password reset email!");
+      }
+    } else {
+      toast.error("Please enter your email address!"); 
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center ">
       <div className="bg-white p-8 rounded-lg shadow-lg w-96 transform transition-all">
@@ -62,7 +77,7 @@ const Login = ({ onSwitchToSignup }: LoginProps) => {
               </div>
             ) : null}
           </div>
-          <div className="mb-6">
+          <div className="">
             <input
               type="password"
               name="password"
@@ -78,6 +93,16 @@ const Login = ({ onSwitchToSignup }: LoginProps) => {
               </div>
             ) : null}
           </div>
+          <div className="flex  justify-end my-2">
+                  <button
+                    type="button"
+                    onClick={()=>handleForgotPassword(formik.values.email)}
+    
+                    className="text-sm text-primary hover:text-secondary"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
           <button
             type="submit"
             className="w-full bg-primary text-white py-3 px-4 rounded-md hover:bg-secondary transition duration-300 mb-4"
@@ -85,6 +110,8 @@ const Login = ({ onSwitchToSignup }: LoginProps) => {
             Sign in
           </button>
         </form>
+
+               
         <p className="text-center text-gray-600">
         {"Don't have an account?"}{" "}
           <button

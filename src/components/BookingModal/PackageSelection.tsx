@@ -45,7 +45,7 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
         if (packagesData && packagesData.length > 0) {
           const selectedPackages = [
             packagesData.find(e => e.id === "sOeeG6sOs05cFuX0ZyOs"),
-            packagesData.find(e => e.id === "g68TiFFFljZhP0PTaPcm"),
+            packagesData.find(e => e.id === "vDKXAq5wos24FBfZfXqJ"),
             packagesData.find(e => e.id === "l5GxM7IvokcfDd1R4YA3"),
           ].filter(Boolean) as Package[]; // Remove `undefined` values
   
