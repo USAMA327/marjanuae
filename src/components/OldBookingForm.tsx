@@ -12,6 +12,25 @@ const locations = [
   "Ras Al Khaimah-Al Marjan Island",
 ];
 
+
+const getMinTime = (selectedDate: Date | undefined) => {
+  const now = new Date();
+  if (!selectedDate || selectedDate.toDateString() !== now.toDateString()) {
+    // If the selected date is not today, set min time to 9:00 AM
+    const minTime = new Date();
+    minTime.setHours(9, 0, 0);
+    return minTime;
+  }
+  // If the selected date is today, set min time to one hour from now
+  const minTime = new Date();
+  minTime.setHours(now.getHours() + 1, now.getMinutes(), 0);
+
+  // Ensure the min time is never before 9:00 AM
+  const minAllowedTime = new Date();
+  minAllowedTime.setHours(9, 0, 0);
+  return minTime > minAllowedTime ? minTime : minAllowedTime;
+};
+
 const minTime = new Date();
 minTime.setHours(9, 0, 0); // 9:00 AM
 
@@ -173,7 +192,7 @@ const OldBookingForm = ({
                   dateFormat="hh:mm aa"
                   className="w-full p-3 border-l border-gray-300 focus:outline-none"
                   placeholderText="Time"
-                  minTime={minTime}
+                  minTime={getMinTime(formik.values.pickupDate)}
                   maxTime={maxTime}
                 />
               </div>

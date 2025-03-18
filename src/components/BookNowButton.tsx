@@ -7,12 +7,13 @@ const BookNowButton = ({ onClick }: { onClick: () => void }) => {
   const { user, openAuthModal } = useAuth();
 
   const handleBookNow = async () => {
-    if (user) {
-      onClick();
-      console.log("User is logged in. Hitting the API...");
-    } else {
-      openAuthModal();
-    }
+    // if (user) {
+    //   onClick();
+    //   console.log("User is logged in. Hitting the API...");
+    // } else {
+    //   openAuthModal();
+    // }
+    onClick()
   };
 
   return (

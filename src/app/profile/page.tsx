@@ -119,15 +119,19 @@ function Page() {
                         booking.status == 1
                           ? "primary"
                           : booking.status == 2
+                            ? "warning"
+                            : booking.status == 3
                             ? "success"
                             : "error"
                       }
                     >
                       {booking.status == 1
-                        ? "Confirmed"
-                        : booking.status == 2
-                          ? "Active"
-                          : "Cancellation"}
+                     ? "Confirmed"
+                     : booking.status == 2
+           ? "Active"
+           : booking.status == 3
+                       ? "Completed"
+                       : "Cancellation "}
                     </Badge>
                   </h3>
                   <div className="mt-4 space-y-3">

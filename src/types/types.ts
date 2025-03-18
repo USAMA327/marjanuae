@@ -90,10 +90,11 @@ export interface Booking {
   pickupLocation: string;
   dropoffTime: Date,
   pickupTime: Date;
-  selectedAddOns: { name: string, price: number }[];
+  selectedAddOns: Addon[];
   totalPrice: number;
   user: any; // Firestore DocumentReference
   status: number; // 1: Confirmed, 2: Active, 3: Completed, 4: Cancelled
+  selectedPackage:Package
 
 }
 

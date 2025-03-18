@@ -15,8 +15,9 @@ interface SummaryProps {
   discount: number;
   finalTotal: number;
   discountedTotal: number;
-  mileStone: boolean;
   discountPercentage: number;
+  hourRate: number;
+  extraHours:number
 }
 
 const Summary: React.FC<SummaryProps> = ({
@@ -29,8 +30,9 @@ const Summary: React.FC<SummaryProps> = ({
   selectedPackage,
   discount,
   finalTotal,
+  hourRate,
+  extraHours,
   discountedTotal,
-  mileStone,
   discountPercentage,
 }) => {
   return (
@@ -103,12 +105,6 @@ const Summary: React.FC<SummaryProps> = ({
           formula={`${numberOfDays} days × ${selectedPackage?.newPrice?.toFixed(2) || "0.00"} AED `}
         />
 
-        {mileStone && (
-          <>
-            <hr className="border-gray-200" />
-            <SummaryItem label="Mileage (Allowance)" value={"400 km"} />
-          </>
-        )}
 
         <hr className="border-gray-200" />
 
@@ -151,6 +147,20 @@ const Summary: React.FC<SummaryProps> = ({
               />
             );
           })}
+        
+
+        {
+          extraHours > 0 &&
+          <>
+          <hr className="border-gray-200" />
+
+<SummaryItem
+  label="Hourly Charge"
+  value={`AED ${hourRate.toFixed(2)}`}
+  formula={` ${extraHours} hours x 20 AED `}
+/>
+          </>
+        }
         <hr className="border-gray-200" />
 
         {/* Total Price Calculation */}
@@ -161,22 +171,22 @@ const Summary: React.FC<SummaryProps> = ({
         />
 
         {/* Discount Calculation */}
-        <SummaryItem
+        {/* <SummaryItem
           label="Discount"
           value={`-AED ${discount.toFixed(2)}`}
           formula={`${discountPercentage.toFixed(2)}%`}
-        />
+        /> */}
 
-        <hr className="border-gray-200" />
+        {/* <hr className="border-gray-200" />
 
-        {/* Final Price Calculation */}
+        
         <SummaryItem
           label="Final"
           value={<strong className="text-success-600">AED {discountedTotal.toFixed(2)}</strong>}
           formula={`Total Price - Discount = ${finalTotal.toFixed(2)} - ${discount.toFixed(2)}`}
         />
 
-        <hr className="border-gray-200" />
+        <hr className="border-gray-200" /> */}
       </div>
     </div>
   );

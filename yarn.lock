@@ -1281,6 +1281,11 @@
     "@types/qs" "*"
     "@types/serve-static" "*"
 
+"@types/google-libphonenumber@^7.4.30":
+  version "7.4.30"
+  resolved "https://registry.npmjs.org/@types/google-libphonenumber/-/google-libphonenumber-7.4.30.tgz"
+  integrity sha512-Td1X1ayRxePEm6/jPHUBs2tT6TzW1lrVB6ZX7ViPGellyzO/0xMNi+wx5nH6jEitjznq276VGIqjK5qAju0XVw==
+
 "@types/har-format@^1.2.8":
   version "1.2.16"
   resolved "https://registry.npmjs.org/@types/har-format/-/har-format-1.2.16.tgz"
@@ -3345,6 +3350,11 @@ google-gax@^4.3.3:
     protobufjs "^7.3.2"
     retry-request "^7.0.0"
     uuid "^9.0.1"
+
+google-libphonenumber@^3.2.40:
+  version "3.2.40"
+  resolved "https://registry.npmjs.org/google-libphonenumber/-/google-libphonenumber-3.2.40.tgz"
+  integrity sha512-bzGxX/vfggcV80LVcibki+JvR91x6zHpBpovDXSfmZUGn6uLzhbYXsWll2a80EG6qTmvf8lt7KZZ/pkMml8ckw==
 
 google-logging-utils@^0.0.2:
   version "0.0.2"

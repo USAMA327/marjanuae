@@ -9,7 +9,6 @@ import "tippy.js/dist/tippy.css";
 import { Icon } from "@iconify/react"; // Make sure you're importing Iconify
 import DistanceCheckbox from "./DistanceCheckBox";
 
-
 interface PackageSelectionProps {
   selectedPackage: Package | null;
   onSelectPackage: (packageName: Package | null) => void;
@@ -19,8 +18,6 @@ interface PackageSelectionProps {
   setPackages: React.Dispatch<React.SetStateAction<Package[]>>;
   setSelectedPackage?: React.Dispatch<React.SetStateAction<Package | null>>; // Make it optional or ensure it's passed
   total: number;
-  mileStone:boolean,
-  setMileStone:React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const PackageSelection: React.FC<PackageSelectionProps> = ({
@@ -32,8 +29,6 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
   setPackages,
   setSelectedPackage,
   total,
-  mileStone,
-  setMileStone
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const tooltipRef = useRef(null); // ✅ Correct usage of ref
@@ -46,7 +41,17 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
           id: doc.id,
           ...doc.data(),
         })) as Package[];
-        setPackages(packagesData?.reverse());
+  
+        if (packagesData && packagesData.length > 0) {
+          const selectedPackages = [
+            packagesData.find(e => e.id === "sOeeG6sOs05cFuX0ZyOs"),
+            packagesData.find(e => e.id === "g68TiFFFljZhP0PTaPcm"),
+            packagesData.find(e => e.id === "l5GxM7IvokcfDd1R4YA3"),
+          ].filter(Boolean) as Package[]; // Remove `undefined` values
+  
+          setPackages(selectedPackages);
+        }
+        
         setIsLoading(false);
       },
       (err) => {
@@ -55,18 +60,22 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
         setIsLoading(false);
       }
     );
-
+  
     return () => unsubscribe();
   }, [setPackages]);
+  
 
   return (
     <div>
+      <div className="flex flex-col md:flex-row justify-between mb-4 font-semibold">
+        <h3 className="text-sm md:text-2xl ">
+          Which Protection Package do you need?
+        </h3>
 
-      <div className="flex flex-col md:flex justify-between mb-4 font-semibold">
-        <h3 className="text-sm md:text-2xl ">Which Protection Package do you need?</h3>
-
-        <h3 className="text-sm md:text-2xl"><small className="text-sm md:text-lg font-medium">Total:</small> ( AED {total || 0} )</h3>
-
+        <h3 className="text-sm md:text-2xl">
+          <small className="text-sm md:text-lg font-medium">Total:</small> ( AED{" "}
+          {total + (selectedPackage ? selectedPackage.newPrice : 0) || 0} )
+        </h3>
       </div>
       {isLoading ? (
         <div className="grid grid-cols-1   lg:grid-cols-3 gap-4">
@@ -131,26 +140,31 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
               <hr className="my-2" />
 
               <div className="my-4 space-y-2">
-      {pkg.list.map((item, index) => (
-        <div key={index} className="flex items-center">
-          {item.available ? (
-            <span className="text-green-500">✔</span>
-          ) : (
-            <span className="text-red-500">✘</span>
-          )}
-          <span className="ml-2 w-full text-sm flex items-center justify-between">
-            {item.title}{' '}
-
-            <Tippy ref={tooltipRef} content={item.description} placement="top">
-            <span>
-    <Icon icon="material-symbols:info-outline-rounded" className="size-5 cursor-pointer" />
-  </span>
-              </Tippy>
-    
-          </span>
-        </div>
-      ))}
-    </div>
+                {pkg.list.map((item, index) => (
+                  <div key={index} className="flex items-center">
+                    {item.available ? (
+                      <span className="text-green-500">✔</span>
+                    ) : (
+                      <span className="text-red-500">✘</span>
+                    )}
+                    <span className="ml-2 w-full text-sm flex items-center justify-between">
+                      {item.title}{" "}
+                      <Tippy
+                        ref={tooltipRef}
+                        content={item.description}
+                        placement="top"
+                      >
+                        <span>
+                          <Icon
+                            icon="material-symbols:info-outline-rounded"
+                            className="size-5 cursor-pointer"
+                          />
+                        </span>
+                      </Tippy>
+                    </span>
+                  </div>
+                ))}
+              </div>
 
               <hr className="mb-2" />
               {pkg.newPrice > 0 ? (
@@ -167,8 +181,8 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
         </div>
       )}
 
-      <DistanceCheckbox checked={mileStone} setChecked={setMileStone} />
-      
+      <DistanceCheckbox  />
+
       <div className="flex justify-between mt-8">
         <button
           onClick={onPrev}
@@ -177,22 +191,22 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
           Back
         </button>
 
-        
-        <Tippy ref={tooltipRef} disabled={selectedPackage ? true:false} content={"Must select one package!"} placement="top">
-        <button
-          disabled={!selectedPackage}
-          onClick={onNext}
-          className={`${
-            !selectedPackage ? "bg-gray-200" : "bg-green-600"
-          }  text-white px-8 py-2 rounded-sm text-lg font-medium hover:bg-green-700 transition-all duration-300`}
+        <Tippy
+          ref={tooltipRef}
+          disabled={selectedPackage ? true : false}
+          content={"Must select one package!"}
+          placement="top"
         >
-          Next
+          <button
+            disabled={!selectedPackage}
+            onClick={onNext}
+            className={`${
+              !selectedPackage ? "bg-gray-200" : "bg-green-600"
+            }  text-white px-8 py-2 rounded-sm text-lg font-medium hover:bg-green-700 transition-all duration-300`}
+          >
+            Next
           </button>
         </Tippy>
-        
-
-       
-         
       </div>
     </div>
   );

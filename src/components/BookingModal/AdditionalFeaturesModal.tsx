@@ -45,7 +45,6 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
   const [apiLoader, setApiLoader] = useState(false);
   const [packages, setPackages] = useState<Package[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<Package |  null>(null);
-  const [mileStone,setMileStone]=useState(true)
   const [apiloading, setApiLoading] = useState(true);
   const [currentDiscount, setCurrentDiscount] = useState<number>(0);
   if (!car) return null;
@@ -104,10 +103,14 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
     }, 0);
   }, [addons, selectedAddOns, numberOfDays, car.category]);
 
-  const packagePrice=(selectedPackage?.newPrice || 0) * numberOfDays
+  const packagePrice = (selectedPackage?.newPrice || 0) * numberOfDays
+
+  const ExtraHours = moment(values.dropoffTime).get("h") -  moment(values.pickupTime).get("h")
+  
+  const hourRate = useMemo(() =>ExtraHours > 0 ? (moment(values.dropoffTime).get("h") -  moment(values.pickupTime).get("h"))*20 :0,[basePrice,ExtraHours])
 
   // Calculate final total
-  const finalTotal = useMemo(() => basePrice + addOnsTotal + packagePrice, [basePrice, addOnsTotal,packagePrice]);
+  const finalTotal = useMemo(() => basePrice + addOnsTotal + packagePrice+hourRate, [basePrice, addOnsTotal,packagePrice,hourRate]);
 
   // Calculate discount (25% of base price)
   const discount = useMemo(() => basePrice * currentDiscount, [basePrice,currentDiscount]);
@@ -118,53 +121,99 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  // const initiatePayment = async () => {
 
-  //   interface Customer {
-  //     name: string;
-  //     email: string;
-  //     phoneCountryCode: string;
-  //     phoneNumber: string;
-  //   }
-    
-  //   interface EInvoiceDetails {
-  //     subtotal: number;
-  //     grandTotal: number;
-  //     extraChargesType: string;
-  //     invoiceDiscountType: string;
-  //   }
-
-    
-  //   try {
-  //     const response = await fetch('/api/initiate-payment', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({
-  //         amount: 20,
-  //         currency: 'SAR',
-  //         customer: {
-  //           name: 'Kiran',
-  //           email: 'testmail@geidea.com',
-  //           phoneCountryCode: '+20',
-  //           phoneNumber: '8003030083',
-  //         } as Customer,
-  //         eInvoiceDetails: {
-  //           subtotal: 20,
-  //           grandTotal: 20,
-  //           extraChargesType: 'Amount',
-  //           invoiceDiscountType: 'Amount',
-  //         } as EInvoiceDetails,
-  //       }),
-  //     });
+  // {
+  //   "amount": 1,
+  //   "currency": "AED",
+  //   "customer": {
+  //       "name": "Muhammad Ali",
+  //       "email": "muhammad.a@geidea.net",
+  //       "phoneCountryCode": "+971",
+  //       "phoneNumber": "544210311",
+  //       "firstName": "Muhammad",
+  //       "lastName": "Ali"
+  //   },
+  //   "eInvoiceDetails": {
+  //       "subtotal": 1,
+  //       "grandTotal": 1,
+  //       "extraChargesType": "Percentage",
+  //       "invoiceDiscountType": "Amount",
+  //       "eInvoiceItems": [
+  //           {
+  //               "eInvoiceItemId": "17e95202-d151-43ff-d6af-08db4614f0bb",
+  //               "description": "Subscription for TFM tech",
+  //               "price": 1,
+  //               "quantity": 1,
+  //               "taxType": "Amount",
+  //               "total": 1
+  //           }
+  //       ],
+  //       "collectCustomersBillingShippingAddress": true,
+  //       "merchantReferenceId": "25e1d92d-88a5-4264-84d4-76afab98ca69",
+  //       "language": "en"
+  //   },
+  //   "activationDate": "2025-03-17T09:40:06.488Z",
+  //   "expiryDate": "2025-03-24T09:40:06.488Z",
+  //   "callbackUrl": "https://webhook.site/6ec2e6b5-ecfa-4d17-bd14-5fd138d9a9e0",
+  //   "returnUrl": "{{https://webhook.site/6ec2e6b5-ecfa-4d17-bd14-5fd138d9a9e0}}"
+  // }
   
-  //     const data = await response.json();
-  //     console.log('Payment Response:', data);
-  //   } catch (error) {
-  //     console.error('Error:', error);
-  //   }
-  // };
+
+  const initiatePayment = async () => {
+    console.log(`${window.location.origin}/api/payment-callback`)
+    console.log(`${window.location.origin}/payment-status`)
+    try {
+      const response = await fetch('/api/initiate-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: 1,
+          currency: 'AED',
+          customer: {
+            name: 'Muhammad Ali',
+            email: 'muhammad.a@geidea.net',
+            phoneCountryCode: '+971',
+            phoneNumber: '544210311',
+            firstName: 'Muhammad',
+            lastName: 'Ali',
+          },
+          eInvoiceDetails: {
+            subtotal: 1,
+            grandTotal: 1,
+            extraChargesType: 'Percentage',
+            invoiceDiscountType: 'Amount',
+            eInvoiceItems: [
+              {
+                eInvoiceItemId: '17e95202-d151-43ff-d6af-08db4614f0bb',
+                description: 'Subscription for TFM tech',
+                price: 1,
+                quantity: 1,
+                taxType: 'Amount',
+                total: 1,
+              },
+            ],
+            collectCustomersBillingShippingAddress: true,
+            merchantReferenceId: '25e1d92d-88a5-4264-84d4-76afab98ca69',
+            language: 'en',
+            callbackUrl: `https://4536-2a09-bac1-5b00-28-00-3b6-17.ngrok-free.app/api/payment-callback`, // API for handling callback
+            returnUrl: `https://4536-2a09-bac1-5b00-28-00-3b6-17.ngrok-free.app/payment-status`, // User redirect after payment
+          },
+        }),
+      });
+  
+      const data = await response.json();
+      if (data.paymentIntent?.link) {
+        window.location.href = data.paymentIntent.link; // Redirect user
+      }
+    } catch (error) {
+      console.log("Payment Errors",error)
+      toast.error(`Something went wrong! ${error}`);
+    }
+  };
+  
+  
   
 
   // Handle booking submission
@@ -188,13 +237,20 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
         return newId;
       });
     };
+
+    
     
     const bookingId = await generateAutoIncrementId(); // Get new ID
     const selectedAddOnsList = addons.filter((addon) => selectedAddOns[addon.id]);
 
     const bookingDetails = {
       id: bookingId,
-      user: user?.uid ? doc(db, "users", user.uid) : null,
+      user: user?.uid ? doc(db, "users", user.uid) : {
+        displayName: driverDetails.displayName,
+        phone: driverDetails.contactNumber,
+        email: driverDetails.email,
+        nationality: driverDetails.nationality,
+      },
       car: doc(db, "cars", car.id),
       location: values.location,
       dropoffLocation:values.dropoffLocation,
@@ -207,7 +263,6 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
       selectedPackage:selectedPackage,
       createdAt: new Date().toISOString(),
       selectedAddOns: selectedAddOnsList,
-      mileStone:mileStone,
       status: 1,
       numberOfDays:numberOfDays
     };
@@ -400,9 +455,9 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
                           : step === 2
                           ? "mdi:account"
                           : step === 3
-                          ? "mdi:plus-box"
-                          : step === 4
                           ? "mdi:package-variant"
+                          : step === 4
+                          ? "mdi:plus-box"
                           : "mdi:credit-card-check"
                       }
                       className={`w-6 h-6 ${currentStep >= step ? "text-white" : "text-gray-600"}`}
@@ -413,9 +468,9 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
                         : step === 2
                         ? "Driver Details"
                         : step === 3
-                        ? "Add-ons"
-                        : step === 4
                         ? "Package"
+                        : step === 4
+                        ? "Add-ons"
                         : "Pay Now"}
                     </span>
                   </div>
@@ -447,10 +502,26 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
             />
           )}
 
-          {/* Step 3: Add-ons */}
-          {currentStep === 3 && (
+          
+             {/* Step 3: Package Selection */}
+             {currentStep === 3 && (
+            <PackageSelection
+           
+              total={basePrice}
+          packages={packages}
+          setPackages={setPackages}
+          selectedPackage={selectedPackage}
+          onSelectPackage={(packageName) => setSelectedPackage(packageName)} // Pass setSelectedPackage
+          onNext={nextStep}
+          onPrev={prevStep}
+          setSelectedPackage={setSelectedPackage} // Pass setSelectedPackage
+        />
+          )}
+
+          {/* Step $: Add-ons */}
+          {currentStep === 4 && (
             <div>
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left overflow-x-auto border-collapse">
                 <thead>
                   <tr className="bg-gray-100">
                     <th className="p-3">Item</th>
@@ -464,7 +535,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
                     <tr key={addon.id} className="border-b hover:bg-gray-50 transition-all duration-300">
                       <td className="p-3">
                         <div className="font-semibold">{addon.name}</div>
-                        <div className="text-sm text-gray-600 hidden md:block">{addon.description}</div>
+                        <div className="text-sm text-gray-600 ">{addon.description}</div>
                       </td>
                       <td className="p-3">
                         AED{" "}
@@ -518,21 +589,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
             </div>
           )}
 
-          {/* Step 4: Package Selection */}
-          {currentStep === 4 && (
-            <PackageSelection
-              mileStone={mileStone}
-              setMileStone={setMileStone}
-              total={basePrice}
-          packages={packages}
-          setPackages={setPackages}
-          selectedPackage={selectedPackage}
-          onSelectPackage={(packageName) => setSelectedPackage(packageName)} // Pass setSelectedPackage
-          onNext={nextStep}
-          onPrev={prevStep}
-          setSelectedPackage={setSelectedPackage} // Pass setSelectedPackage
-        />
-          )}
+       
 
           {/* Step 5: Summary and Payment */}
           {currentStep === 5 && (
@@ -552,8 +609,11 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
                 discountPercentage={currentDiscount *100}
         finalTotal={finalTotal}
                 discountedTotal={discountedTotal}
-                mileStone={mileStone}
+                hourRate={hourRate}
+                extraHours={ExtraHours}
+            
               />
+
 
              <RefundableDeposit/>
               <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -571,7 +631,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
                       apiLoader ? "bg-success-400" : "bg-success-600"
                     } text-white px-8 py-2 rounded-sm text-lg font-medium hover:bg-success-700 transition-all duration-300`}
                   >
-                    {apiLoader ? "Loading..." : `Pay Now (Save AED ${discount})`}
+                    {apiLoader ? "Loading..." : `Pay now & Save AED ${discount.toFixed(2)} Instantly`}
                   </button>
 
                 
