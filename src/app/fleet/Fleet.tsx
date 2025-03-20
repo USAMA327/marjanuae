@@ -3,18 +3,18 @@ import React, { useState, useEffect } from "react";
 import CarCard from "@/components/CarCard";
 import CarBrand from "@/data/brand.json";
 import { Icon } from "@iconify/react";
-import { useSearchParams } from "next/navigation";
-import AdditionalFeaturesModal from "@/components/BookingModal/AdditionalFeaturesModal";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Car } from "@/types/types";
 import { collection, query, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
 
 function Fleet() {
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedCar, setSelectedCar] = useState<Car | undefined>(undefined);
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter()
+  const searchParams = useSearchParams();
+
 
   useEffect(() => {
     const q = query(collection(db, "cars"));
@@ -32,16 +32,6 @@ function Fleet() {
 
   const handleBrandClick = (brand: string | null) => {
     setSelectedBrand(brand);
-  };
-
-  const openModal = (car: Car | undefined) => {
-    setSelectedCar(car);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-    setSelectedCar(undefined);
   };
 
   const filteredDeals = selectedBrand
@@ -94,7 +84,7 @@ function Fleet() {
         ) : filteredDeals.length > 0 ? (
           filteredDeals.map((car) => (
             <div key={car.id} className="flex flex-col">
-              <CarCard car={car} onClick={() => openModal(car)} />
+              <CarCard car={car} onClick={() =>router.push(`/fleet/${car.id}?${searchParams}`) } />
             </div>
           ))
         ) : (
@@ -104,12 +94,7 @@ function Fleet() {
         )}
       </div>
 
-      {modalOpen && (
-        <AdditionalFeaturesModal
-          car={selectedCar}
-          onClose={closeModal}
-        />
-      )}
+     
     </section>
   );
 }

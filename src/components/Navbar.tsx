@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import Image from "next/image";
 import React, { useState } from "react";
 import Logo from "../../public/logo/logo.png";
@@ -14,10 +14,16 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
+  // Check if the pathname matches the pattern 'fleet/[slug]'
+  const isFleetSlugRoute = pathname?.startsWith('/fleet/') && pathname.split('/').length === 3;
+
+  // Conditionally render the Navbar
+  const shouldShowNavbar = !isFleetSlugRoute;
+
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-
+  if(shouldShowNavbar)
   return (
     <div className="py-4 px-2 sm:px-8 w-full absolute z-30 text-black">
       <div className="flex justify-between items-center">

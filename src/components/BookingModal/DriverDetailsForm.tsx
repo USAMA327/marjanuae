@@ -241,7 +241,7 @@ const DriverDetailsForm: React.FC<DriverDetailsFormProps> = ({
               className="w-5 h-5 text-blue-600 border-gray-300 rounded-md focus:ring-blue-500"
             />
             <span className="text-sm text-gray-700">
-              Driver's age is above 22 years
+              Driver's age is above 25 years
             </span>
           </>
         )}

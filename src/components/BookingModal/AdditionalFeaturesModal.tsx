@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useMemo, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/firebase/firebase";
@@ -22,7 +23,20 @@ interface ModalProps {
 
 
 
+type CheckoutSession = {
+  checkoutMode: string;
+  merchant: string;
+  result: 'SUCCESS' | 'FAILURE'; // Assuming the result can have different values
+  session: {
+    id: string;
+    updateStatus: 'SUCCESS' | 'FAILED'; // Assuming possible statuses
+    version: string;
+  };
+  successIndicator: string;
+};
+
 const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
+
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams?.toString());
@@ -37,6 +51,8 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
     dropoffTime: params.get("dropoffTime") ? new Date(params.get("dropoffTime")!) : undefined,
   });
 
+
+
   const [values, setValues] = useState<BookingValues>(getDefaultValues());
   const [selectedAddOns, setSelectedAddOns] = useState<Record<string, number>>({});
   const [addons, setAddons] = useState<Addon[]>([]);
@@ -47,6 +63,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
   const [selectedPackage, setSelectedPackage] = useState<Package |  null>(null);
   const [apiloading, setApiLoading] = useState(true);
   const [currentDiscount, setCurrentDiscount] = useState<number>(0);
+  const [sessionId, setSessionID] = useState<CheckoutSession | null>(null)
   if (!car) return null;
   useEffect(() => {
     const discountDocId = "QZef7kBLZHRZGu2kUYt9"; 
@@ -70,6 +87,9 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
     fetchDiscount();
   }, []);
 
+ 
+
+
   // Calculate number of days
   const numberOfDays = useMemo(() => {
     if (values.pickupDate && values.dropoffDate) {
@@ -80,7 +100,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
     return 0;
   }, [values.pickupDate, values.dropoffDate]);
 
-  // Calculate base price
+  // Calculate base pricez
   const basePrice = useMemo(() => car.price * numberOfDays, [car.price, numberOfDays]);
 
   // Calculate add-ons total
@@ -120,126 +140,75 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
 
 
   const [loading, setLoading] = useState<boolean>(false);
-
-
-  // {
-  //   "amount": 1,
-  //   "currency": "AED",
-  //   "customer": {
-  //       "name": "Muhammad Ali",
-  //       "email": "muhammad.a@geidea.net",
-  //       "phoneCountryCode": "+971",
-  //       "phoneNumber": "544210311",
-  //       "firstName": "Muhammad",
-  //       "lastName": "Ali"
-  //   },
-  //   "eInvoiceDetails": {
-  //       "subtotal": 1,
-  //       "grandTotal": 1,
-  //       "extraChargesType": "Percentage",
-  //       "invoiceDiscountType": "Amount",
-  //       "eInvoiceItems": [
-  //           {
-  //               "eInvoiceItemId": "17e95202-d151-43ff-d6af-08db4614f0bb",
-  //               "description": "Subscription for TFM tech",
-  //               "price": 1,
-  //               "quantity": 1,
-  //               "taxType": "Amount",
-  //               "total": 1
-  //           }
-  //       ],
-  //       "collectCustomersBillingShippingAddress": true,
-  //       "merchantReferenceId": "25e1d92d-88a5-4264-84d4-76afab98ca69",
-  //       "language": "en"
-  //   },
-  //   "activationDate": "2025-03-17T09:40:06.488Z",
-  //   "expiryDate": "2025-03-24T09:40:06.488Z",
-  //   "callbackUrl": "https://webhook.site/6ec2e6b5-ecfa-4d17-bd14-5fd138d9a9e0",
-  //   "returnUrl": "{{https://webhook.site/6ec2e6b5-ecfa-4d17-bd14-5fd138d9a9e0}}"
-  // }
-  
-
-  const initiatePayment = async () => {
-    console.log(`${window.location.origin}/api/payment-callback`)
-    console.log(`${window.location.origin}/payment-status`)
+  const handleCheckout = async (amount: number, orderId: string | number) => {
+    setLoading(true);
     try {
-      const response = await fetch('/api/initiate-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: 1,
-          currency: 'AED',
-          customer: {
-            name: 'Muhammad Ali',
-            email: 'muhammad.a@geidea.net',
-            phoneCountryCode: '+971',
-            phoneNumber: '544210311',
-            firstName: 'Muhammad',
-            lastName: 'Ali',
-          },
-          eInvoiceDetails: {
-            subtotal: 1,
-            grandTotal: 1,
-            extraChargesType: 'Percentage',
-            invoiceDiscountType: 'Amount',
-            eInvoiceItems: [
-              {
-                eInvoiceItemId: '17e95202-d151-43ff-d6af-08db4614f0bb',
-                description: 'Subscription for TFM tech',
-                price: 1,
-                quantity: 1,
-                taxType: 'Amount',
-                total: 1,
-              },
-            ],
-            collectCustomersBillingShippingAddress: true,
-            merchantReferenceId: '25e1d92d-88a5-4264-84d4-76afab98ca69',
-            language: 'en',
-            callbackUrl: `https://4536-2a09-bac1-5b00-28-00-3b6-17.ngrok-free.app/api/payment-callback`, // API for handling callback
-            returnUrl: `https://4536-2a09-bac1-5b00-28-00-3b6-17.ngrok-free.app/payment-status`, // User redirect after payment
-          },
-        }),
+      const response = await axios.post('/api/initiate-checkout', {
+        amount,
+        orderId,
+        description: "Check out for renting a car",
       });
   
-      const data = await response.json();
-      if (data.paymentIntent?.link) {
-        window.location.href = data.paymentIntent.link; // Redirect user
+      if (!response.data.session?.id) {
+        toast.error('Failed to retrieve session ID');
+        console.error('Failed to retrieve session ID');
+        return;
       }
-    } catch (error) {
-      console.log("Payment Errors",error)
-      toast.error(`Something went wrong! ${error}`);
+  
+      setSessionID(response.data);
+  
+      // Load Mastercard Hosted Checkout script
+      const script = document.createElement('script');
+      script.src = `https://${process.env.NEXT_PUBLIC_MPGS_REGION}-gateway.mastercard.com/static/checkout/checkout.min.js`;
+      script.onload = () => {
+        // @ts-ignore
+
+        Checkout.configure({
+          session: { id: response.data.session.id },
+        });
+        // @ts-ignore
+        Checkout.showPaymentPage();
+      };
+      document.body.appendChild(script);
+    } catch (error: any) {
+
+      console.error(error.response?.data || error.message);
+
+      if (error.response?.data && error.response.data.error) {
+        
+        toast.error(error.response.data.error.error.explanation ||error.response.data.error.error.result)
+      } else {
+        toast.error(error.response?.data || error.message)
+      }
+    } finally {
+      setLoading(false);
     }
   };
   
-  
-  
 
-  // Handle booking submission
+
+  
+  const generateAutoIncrementId = async () => {
+    const counterRef = doc(db, "metadata", "counter");
+  
+    return await runTransaction(db, async (transaction) => {
+      const counterDoc = await transaction.get(counterRef);
+      let newId = 1;
+  
+      if (counterDoc.exists()) {
+        const currentValue = counterDoc.data().value;
+        newId = currentValue + 1;
+        transaction.update(counterRef, { value: newId });
+      } else {
+        transaction.set(counterRef, { value: newId });
+      }
+  
+      return newId;
+    });
+  };
+  
   const handleBooking = async (isPayNow: boolean) => {
     setApiLoader(true);
-    const generateAutoIncrementId = async () => {
-      const counterRef = doc(db, "metadata", "counter");
-    
-      return await runTransaction(db, async (transaction) => {
-        const counterDoc = await transaction.get(counterRef);
-        let newId = 1;
-    
-        if (counterDoc.exists()) {
-          const currentValue = counterDoc.data().value;
-          newId = currentValue + 1;
-          transaction.update(counterRef, { value: newId });
-        } else {
-          transaction.set(counterRef, { value: newId });
-        }
-    
-        return newId;
-      });
-    };
-
-    
-    
     const bookingId = await generateAutoIncrementId(); // Get new ID
     const selectedAddOnsList = addons.filter((addon) => selectedAddOns[addon.id]);
 
@@ -278,108 +247,117 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
         });
       }
 
-      await setDoc(doc(db, "bookings", bookingId.toString()), bookingDetails);
-
-      // Send confirmation email
-      const emailResponse = await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: driverDetails.email,
-          subject: "Your Booking Confirmation",
-          text: `Thank you for your booking! Here are your details:
-          Booking ID: ${bookingId}
-          Car: ${car.name}
-          
-        `,
-      
-          html:`<!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Booking Confirmation</title>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-          </head>
-          <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; line-height: 1.6; margin: 0; padding: 0;">
-            <div style="max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); overflow: hidden;">
-              
-              <!-- Header -->
-              <div style="background-color: #dbeafe; color: #045A85; padding: 20px; text-align: center;">
-                <h1 style="font-size: 24px; margin: 0;">Booking Confirmation</h1>
-              </div>
-          
-              <!-- Body -->
-              <div style="padding: 20px;">
-                <h2 style="font-size: 20px; margin-bottom: 15px; color: #045A85; text-align: center;">Thank you for your booking! 🎉</h2>
-                <p style="margin-bottom: 15px;">Your booking has been confirmed. Below are the details of your reservation:</p>
-                
-                <!-- Booking ID -->
-                <div style="background-color: #dbeafe; color: #045A85; padding: 15px; border-radius: 4px; text-align: center; margin-bottom: 20px; font-weight: bold; border: 1px solid #045A85;">
-                  <strong>Booking ID:</strong> ${bookingDetails.id}
-                </div>
-          
-                <!-- Booking Details -->
-                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                  <ul style="list-style: none; padding: 0;">
-                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                      <strong style="display: inline-block; width: 140px; color: #555;">Car:</strong> ${car.name}
-                    </li>
-                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                      <strong style="display: inline-block; width: 140px; color: #555;">Pickup Date & Time:</strong> 
-                      ${moment(bookingDetails.pickupDate).format("ddd, DD, MM, YYYY")} | ${moment(bookingDetails.pickupTime).format("hh:mm A")}
-                    </li>
-                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                      <strong style="display: inline-block; width: 140px; color: #555;">Dropoff Date & Time:</strong> 
-                      ${moment(bookingDetails.dropoffDate).format("ddd, DD, MM, YYYY")} | ${moment(bookingDetails.dropoffTime).format("hh:mm A")}
-                    </li>
-                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                      <strong style="display: inline-block; width: 140px; color: #555;">Pickup Location:</strong> ${bookingDetails.location}
-                    </li>
-                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                      <strong style="display: inline-block; width: 140px; color: #555;">Dropoff Location:</strong> ${bookingDetails.dropoffLocation}
-                    </li>
-                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                      <strong style="display: inline-block; width: 140px; color: #555;">Selected Package:</strong> ${bookingDetails?.selectedPackage?.name}
-                    </li>
-                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                      <strong style="display: inline-block; width: 140px; color: #555;">Payment Status:</strong> ${bookingDetails.isPaid ? "Paid" : "Payable upon pickup"}
-                    </li>
-                    <!-- Pricing -->
-                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                      <strong style="display: inline-block; width: 140px; color: #555;">Total Price:</strong> AED ${bookingDetails.totalPrice}
-                    </li>
-                    <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                      <strong style="display: inline-block; width: 140px; color: #555;">Discount:</strong> -AED ${discount}
-                    </li>
-                    <li style="padding: 10px 0;">
-                      <strong style="display: inline-block; width: 140px; color: #555;">Payable upon pickup:</strong> AED ${discountedTotal}
-                    </li>
-                  </ul>
-                </div>
-          
-                <p style="text-align: center;">If you have any questions, feel free to contact us.</p>
-              </div>
-          
-              <!-- Footer -->
-              <div style="background-color: #f1f1f1; padding: 10px; text-align: center; font-size: 14px; color: #666;">
-                <p>&copy; 2010 Al Marjan. All rights reserved.</p>
-              </div>
-          
-            </div>
-          </body>
-          </html>
-          `
-        }),
-      });
-
-      if (emailResponse.ok) {
-        toast.success("Booking successfully added and confirmation email sent!");
+      if (isPayNow) {
+        setDoc(doc(db, "bookings", bookingId.toString()), bookingDetails).then(() => {
+          handleCheckout(isPayNow ? discountedTotal : finalTotal,bookingId.toString())
+        })
       } else {
-        toast.error("Booking added, but failed to send confirmation email.");
+        setDoc(doc(db, "bookings", bookingId.toString()), bookingDetails)
+        // Send confirmation email
+        const emailResponse = await fetch("/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to: driverDetails.email,
+            subject: "Your Booking Confirmation",
+            text: `Thank you for your booking! Here are your details:
+            Booking ID: ${bookingId}
+            Car: ${car.name}
+            
+          `,
+        
+            html:`<!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Booking Confirmation</title>
+              <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+            </head>
+            <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; line-height: 1.6; margin: 0; padding: 0;">
+              <div style="max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                
+                <!-- Header -->
+                <div style="background-color: #dbeafe; color: #045A85; padding: 20px; text-align: center;">
+                  <h1 style="font-size: 24px; margin: 0;">Booking Confirmation</h1>
+                </div>
+            
+                <!-- Body -->
+                <div style="padding: 20px;">
+                  <h2 style="font-size: 20px; margin-bottom: 15px; color: #045A85; text-align: center;">Thank you for your booking! 🎉</h2>
+                  <p style="margin-bottom: 15px;">Your booking has been confirmed. Below are the details of your reservation:</p>
+                  
+                  <!-- Booking ID -->
+                  <div style="background-color: #dbeafe; color: #045A85; padding: 15px; border-radius: 4px; text-align: center; margin-bottom: 20px; font-weight: bold; border: 1px solid #045A85;">
+                    <strong>Booking ID:</strong> ${bookingDetails.id}
+                  </div>
+            
+                  <!-- Booking Details -->
+                  <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <ul style="list-style: none; padding: 0;">
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Car:</strong> ${car.name}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Pickup Date & Time:</strong> 
+                        ${moment(bookingDetails.pickupDate).format("ddd, DD, MM, YYYY")} | ${moment(bookingDetails.pickupTime).format("hh:mm A")}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Dropoff Date & Time:</strong> 
+                        ${moment(bookingDetails.dropoffDate).format("ddd, DD, MM, YYYY")} | ${moment(bookingDetails.dropoffTime).format("hh:mm A")}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Pickup Location:</strong> ${bookingDetails.location}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Dropoff Location:</strong> ${bookingDetails.dropoffLocation}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Selected Package:</strong> ${bookingDetails?.selectedPackage?.name}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Payment Status:</strong> ${bookingDetails.isPaid ? "Paid" : "Payable upon pickup"}
+                      </li>
+                      <!-- Pricing -->
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Total Price:</strong> AED ${bookingDetails.totalPrice}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Discount:</strong> -AED ${discount}
+                      </li>
+                      <li style="padding: 10px 0;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Payable upon pickup:</strong> AED ${discountedTotal}
+                      </li>
+                    </ul>
+                  </div>
+            
+                  <p style="text-align: center;">If you have any questions, feel free to contact us.</p>
+                </div>
+            
+                <!-- Footer -->
+                <div style="background-color: #f1f1f1; padding: 10px; text-align: center; font-size: 14px; color: #666;">
+                  <p>&copy; 2010 Al Marjan. All rights reserved.</p>
+                </div>
+            
+              </div>
+            </body>
+            </html>
+            `
+          }),
+        });
+  
+        if (emailResponse.ok) {
+          toast.success("Booking successfully added and confirmation email sent!");
+        } else {
+          toast.error("Booking added, but failed to send confirmation email.");
+        }
+  
+
+        onClose()
+    
       }
 
-      onClose();
+
     } catch (error) {
       console.error("Error adding booking to Firestore", error);
       toast.error("Error adding booking to Firestore");
@@ -387,6 +365,47 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
       setApiLoader(false);
     }
   };
+
+  useEffect(() => {
+    const getInfo = async () => {
+
+      const orderId = params.get("orderId");
+      if (orderId && sessionId?.successIndicator) {
+        setLoading(true)
+        try {
+          const response = await axios.get(`/api/check-payment/${orderId}`);
+          if (response.data.status === 'CAPTURED') {
+           toast.success("Payment Successfull !",{position:"top-center"})
+          } else {
+            toast.error("Error during payment !",{position:"top-center"})
+         }
+    
+        } catch (error: any) {
+    
+          console.error(error.response?.data || error.message);
+    
+          if (error.response?.data && error.response.data.error) {
+            
+            toast.error(error.response.data.error.error.explanation ||error.response.data.error.error.result)
+          } else {
+            toast.error(error.response?.data || error.message)
+          }
+        } finally {
+          setSessionID(null)
+          setLoading(false);
+        }
+        
+      }else{
+        // window.history.replaceState(null, '', '/fleet')
+      }
+      
+    }
+
+    getInfo()
+
+
+  
+  },[])
 
   // Fetch add-ons from Firestore
   useEffect(() => {
@@ -407,6 +426,9 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
 
     return () => unsubscribe();
   }, []);
+
+
+ 
 
   // Step navigation
   const nextStep = () => setCurrentStep((prev) => (prev < 5 ? prev + 1 : prev));
@@ -433,13 +455,11 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
         </button>
 
        
-
+        {/* ?resultIndicator=c7804cc42b5548a3&sessionVersion=57dd61b309&checkoutVersion=1.0.0 */}
         <div className="p-2 md:p-8">
           {/* Progress Bar */}
           <div className="flex justify-center my-8">
-          {/* <button onClick={initiatePayment} disabled={loading}>
-        {loading ? 'Processing...' : 'Pay Now'}
-      </button> */}
+     
             <div className="hidden lg:flex items-center space-x-4">
               {[1, 2, 3, 4, 5].map((step) => (
                 <React.Fragment key={step}>
@@ -625,24 +645,24 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
                 </button>
                 <div className="flex flex-col md:flex-row gap-4">
                   <button
-                    disabled={apiLoader}
+                    disabled={apiLoader || loading}
                     onClick={() => handleBooking(true)}
                     className={`${
-                      apiLoader ? "bg-success-400" : "bg-success-600"
+                      apiLoader || loading  ? "bg-success-400" : "bg-success-600"
                     } text-white px-8 py-2 rounded-sm text-lg font-medium hover:bg-success-700 transition-all duration-300`}
                   >
-                    {apiLoader ? "Loading..." : `Pay now & Save AED ${discount.toFixed(2)} Instantly`}
+                    {apiLoader || loading ? "Loading..." : `Pay now & Save AED ${discount.toFixed(2)} Instantly`}
                   </button>
 
                 
                   <button
-                    disabled={apiLoader || apiloading}
+                    disabled={apiLoader || apiloading || loading}
                     onClick={() => handleBooking(false)}
                     className={`${
-                      apiLoader ? "bg-blue-400" : "border border-blue-600"
+                      apiLoader || loading  ? "bg-blue-400" : "border border-blue-600"
                     } text-blue-600 px-8 py-2 rounded-sm text-lg font-medium hover:bg-blue-700 hover:text-white transition-all duration-300`}
                   >
-                    {apiLoader ? "Loading..." : "Book now & Pay Later"}
+                    {apiLoader || loading  ? "Loading..." : "Book now & Pay Later"}
                   </button>
                 </div>
               </div>

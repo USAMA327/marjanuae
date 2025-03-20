@@ -6,7 +6,17 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
 },
   images: {
-    domains: ["i.ibb.co","lh3.googleusercontent.com"], // Add your image hostname here
+    remotePatterns: [
+      {
+    protocol: 'https',
+    hostname: 'i.ibb.co',
+    pathname: '**',
+    },
+    {
+      protocol: 'https',
+      hostname: 'lh3.googleusercontent.com',
+      pathname: '**',
+    }]
   },
 };
 

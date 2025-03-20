@@ -4,5 +4,6 @@
   { "id": 3, "icon": "cbi:hyundai", "name": "Hyundai" },
   { "id": 4, "icon": "cbi:kia", "name": "Kia" },
   { "id": 5, "icon": "cbi:mitsubishi", "name": "Mitsubishi" },
-  { "id": 6, "icon": "cbi:renault", "name": "Renault" }
+  { "id": 6, "icon": "cbi:renault", "name": "Renault" },
+  { "id": 7, "icon": "cbi:toyota", "name": "Toyota" }
 ]
