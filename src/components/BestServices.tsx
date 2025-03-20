@@ -5,15 +5,14 @@ import CarCard from "./CarCard";
 import Link from "next/link";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase/firebase";
-import AdditionalFeaturesModal from "./BookingModal/AdditionalFeaturesModal";
 import FancyButton from "./FancyButton";
+import { useRouter } from "next/navigation";
 
 // Component: Best Services Section
 const BestServices: React.FC = () => {
+  const router =useRouter()
   const [loading, setLoading] = useState(true); // State to manage loading
   const [topCars, setTopCars] = useState<Car[]>([]); // State to store top cars
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedCar, setSelectedCar] = useState<Car | undefined>(undefined);
   // Function to listen for real-time updates on top cars
   useEffect(() => {
     const q = query(collection(db, "cars"), where("isTop", "==", true));
@@ -42,15 +41,7 @@ const BestServices: React.FC = () => {
     </div>
   );
 
-  const openModal = (car: Car | undefined) => {
-    setSelectedCar(car);
-    setModalOpen(true);
-  };
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setSelectedCar(undefined);
-  };
 
   return (
     <section className="text-black bg-blend-soft-light pb-32 flex flex-col items-center justify-center">
@@ -73,7 +64,7 @@ const BestServices: React.FC = () => {
             ))
           : // Show actual car cards after loading
             topCars.map((car) => (
-              <CarCard key={car.id} car={car} onClick={() => openModal(car)} />
+              <CarCard key={car.id} car={car} onClick={() => router.push(`/fleet/${car.id}`)} />
             ))}
       </div>
 
@@ -84,13 +75,7 @@ const BestServices: React.FC = () => {
         </FancyButton>
       </Link>
 
-      {/* Additional Features Modal */}
-      {modalOpen && (
-        <AdditionalFeaturesModal
-          car={selectedCar}
-          onClose={closeModal}
-        />
-      )}
+    
     </section>
   );
 };
