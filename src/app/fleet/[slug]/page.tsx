@@ -183,12 +183,32 @@ const AdditionalFeaturesModal: React.FC = () => {
     }, 0);
   }, [addons, selectedAddOns, numberOfDays, car]);
 
-  // Calculate package price
-  const packagePrice = useMemo(
-    () => (selectedPackage?.newPrice || 0) * numberOfDays,
-    [selectedPackage, numberOfDays]
-  );
+ // Function to calculate the discounted price based on car category
+const calculateDiscountedPrice = (pkg: Package) => {
+  if (!car?.category) return 0; // Handle case where car category is undefined
 
+  switch (car.category) {
+    case "Economy":
+      return (pkg.priceEconomy * (100 - pkg.onlineDiscount)) / 100;
+    case "SUVs":
+      return (pkg.priceSmallSUV * (100 - pkg.onlineDiscount)) / 100;
+    case "Mid size Sedan":
+      return (pkg.priceStandardSUV * (100 - pkg.onlineDiscount)) / 100;
+    default:
+      return (pkg.price7Seater * (100 - pkg.onlineDiscount)) / 100;
+  }
+};
+
+// Calculate package price
+const packagePrice = useMemo(() => {
+  if (!selectedPackage) return 0; // Return 0 if no package is selected
+
+  // Calculate the discounted price for the selected package
+  const discountedPrice = calculateDiscountedPrice(selectedPackage);
+
+  // Multiply the discounted price by the number of days
+  return discountedPrice * numberOfDays;
+}, [selectedPackage, numberOfDays, car?.category]); // Add car.category as a dependency
   // Calculate extra hours
   const extraHours = useMemo(() => {
     if (values.pickupTime && values.dropoffTime) {
@@ -603,7 +623,8 @@ const AdditionalFeaturesModal: React.FC = () => {
 
           {/* Step 3: Package Selection */}
           {currentStep === 3 && (
-            <PackageSelection
+                <PackageSelection
+                  car={car}
               total={basePrice}
               packages={packages}
               setPackages={setPackages}

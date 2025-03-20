@@ -112,8 +112,10 @@ export interface Package {
   onlineDiscount: number;
   rating: number;
   excessUpto: number;
-  newPrice: number;
-  oldPrice: number;
+  priceEconomy: number;
+  priceSmallSUV: number;
+  priceStandardSUV: number;
+  price7Seater: number;
   list: {
     available: boolean;
     title: string;

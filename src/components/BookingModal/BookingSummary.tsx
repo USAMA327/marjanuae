@@ -35,6 +35,21 @@ const Summary: React.FC<SummaryProps> = ({
   discountedTotal,
   discountPercentage,
 }) => {
+
+  const calculateDiscountedPrice = (pkg: Package | null | undefined) => {
+    if (!pkg || !car?.category) return 0; // Return 0 if pkg or car.category is undefined
+
+    switch (car.category) {
+      case "Economy":
+        return (pkg.priceEconomy * (100 - pkg.onlineDiscount)) / 100;
+      case "SUVs":
+        return (pkg.priceSmallSUV * (100 - pkg.onlineDiscount)) / 100;
+      case "Mid size Sedan":
+        return (pkg.priceStandardSUV * (100 - pkg.onlineDiscount)) / 100;
+      default:
+        return (pkg.price7Seater * (100 - pkg.onlineDiscount)) / 100;
+    }
+  };
   return (
     <div className="bg-gray-50 p-6 rounded-lg">
       <div className="space-y-3">
@@ -100,11 +115,14 @@ const Summary: React.FC<SummaryProps> = ({
 
         {/* Selected Package */}
         <SummaryItem
-          label={`Package : ${selectedPackage ? selectedPackage.name : ""}`}
-          value={`AED ${(numberOfDays * (selectedPackage?.newPrice || 0)).toFixed(2)}`}
-          formula={`${numberOfDays} days × ${selectedPackage?.newPrice?.toFixed(2) || "0.00"} AED `}
-        />
-
+        label={`Package: ${selectedPackage ? selectedPackage.name : "No Package Selected"}`}
+        value={`AED ${(numberOfDays * (selectedPackage ? calculateDiscountedPrice(selectedPackage) : 0)).toFixed(2)}`}
+        formula={
+          selectedPackage
+            ? `${numberOfDays} days × ${calculateDiscountedPrice(selectedPackage).toFixed(2)} AED`
+            : "No package selected"
+        }
+      />
 
         <hr className="border-gray-200" />
 

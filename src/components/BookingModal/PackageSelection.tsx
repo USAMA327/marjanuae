@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { db } from "@/firebase/firebase";
-import { Package } from "@/types/types";
+import { Car, Package } from "@/types/types";
 import { collection, onSnapshot } from "firebase/firestore";
 import toast from "react-hot-toast";
 import StarRating from "../StarRating";
@@ -18,6 +18,7 @@ interface PackageSelectionProps {
   setPackages: React.Dispatch<React.SetStateAction<Package[]>>;
   setSelectedPackage?: React.Dispatch<React.SetStateAction<Package | null>>; // Make it optional or ensure it's passed
   total: number;
+  car: Car;
 }
 
 const PackageSelection: React.FC<PackageSelectionProps> = ({
@@ -29,9 +30,11 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
   setPackages,
   setSelectedPackage,
   total,
+  car,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const tooltipRef = useRef(null); // ✅ Correct usage of ref
+
   // Fetch packages from Firestore
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -41,17 +44,17 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
           id: doc.id,
           ...doc.data(),
         })) as Package[];
-  
+
         if (packagesData && packagesData.length > 0) {
           const selectedPackages = [
-            packagesData.find(e => e.id === "sOeeG6sOs05cFuX0ZyOs"),
-            packagesData.find(e => e.id === "vDKXAq5wos24FBfZfXqJ"),
-            packagesData.find(e => e.id === "l5GxM7IvokcfDd1R4YA3"),
+            packagesData.find((e) => e.id === "sOeeG6sOs05cFuX0ZyOs"),
+            packagesData.find((e) => e.id === "vDKXAq5wos24FBfZfXqJ"),
+            packagesData.find((e) => e.id === "l5GxM7IvokcfDd1R4YA3"),
           ].filter(Boolean) as Package[]; // Remove `undefined` values
-  
+
           setPackages(selectedPackages);
         }
-        
+
         setIsLoading(false);
       },
       (err) => {
@@ -60,10 +63,37 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
         setIsLoading(false);
       }
     );
-  
+
     return () => unsubscribe();
   }, [setPackages]);
-  
+
+  // Function to calculate the discounted price based on car category
+  const calculateDiscountedPrice = (pkg: Package) => {
+    switch (car.category) {
+      case "Economy":
+        return (pkg.priceEconomy * (100 - pkg.onlineDiscount)) / 100;
+      case "SUVs":
+        return (pkg.priceSmallSUV * (100 - pkg.onlineDiscount)) / 100;
+      case "Mid size Sedan":
+        return (pkg.priceStandardSUV * (100 - pkg.onlineDiscount)) / 100;
+      default:
+        return (pkg.price7Seater * (100 - pkg.onlineDiscount)) / 100;
+    }
+  };
+
+  // Function to calculate the original price based on car category
+  const calculateOriginalPrice = (pkg: Package) => {
+    switch (car.category) {
+      case "Economy":
+        return pkg.priceEconomy;
+      case "SUVs":
+        return pkg.priceSmallSUV;
+      case "Mid size Sedan":
+        return pkg.priceStandardSUV;
+      default:
+        return pkg.price7Seater;
+    }
+  };
 
   return (
     <div>
@@ -73,12 +103,16 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
         </h3>
 
         <h3 className="text-sm md:text-2xl">
-          <small className="text-sm md:text-lg font-medium">Total:</small> ( AED{" "}
-          {total + (selectedPackage ? selectedPackage.newPrice : 0) || 0} )
+          <small className="text-sm md:text-lg font-medium">Total:</small> AED{" "}
+          {(
+            total +
+            (selectedPackage ? calculateDiscountedPrice(selectedPackage) : 0)
+          ).toFixed(2)}
         </h3>
       </div>
+
       {isLoading ? (
-        <div className="grid grid-cols-1   lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((index) => (
             <div
               key={index}
@@ -99,7 +133,7 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-1  lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-4">
           {packages.map((pkg) => (
             <div
               key={pkg.name}
@@ -167,10 +201,15 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
               </div>
 
               <hr className="mb-2" />
-              {pkg.newPrice > 0 ? (
+              {calculateDiscountedPrice(pkg) > 0 ? (
                 <span className="text-sm">
-                  AED <strong className="text-lg">{pkg.newPrice}</strong>{" "}
-                  <del>AED {pkg.oldPrice}</del>{" "}
+                  AED{" "}
+                  <strong className="text-lg">
+                    {calculateDiscountedPrice(pkg).toFixed(2)}
+                  </strong>{" "}
+                  <del>
+                    AED {calculateOriginalPrice(pkg).toFixed(2)}
+                  </del>{" "}
                   <strong>({pkg.onlineDiscount}% off)</strong>
                 </span>
               ) : (
@@ -181,7 +220,7 @@ const PackageSelection: React.FC<PackageSelectionProps> = ({
         </div>
       )}
 
-      <DistanceCheckbox  />
+      <DistanceCheckbox />
 
       <div className="flex justify-between mt-8">
         <button
