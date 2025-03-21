@@ -100,6 +100,8 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
     return 0;
   }, [values.pickupDate, values.dropoffDate]);
 
+
+  const collectionPickupAmount = (values.location == "Ras Al Khaimah City Office" && values.dropoffLocation == "Ras Al Khaimah City Office") || (values.location == "Ras Al Khaimah City Office" && !values.dropoffLocation) ? 0 : 80
   // Calculate base pricez
   const basePrice = useMemo(() => car.price * numberOfDays, [car.price, numberOfDays]);
 
@@ -154,7 +156,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
   const hourRate = useMemo(() =>ExtraHours > 0 ? (moment(values.dropoffTime).get("h") -  moment(values.pickupTime).get("h"))*20 :0,[basePrice,ExtraHours])
 
   // Calculate final total
-  const finalTotal = useMemo(() => basePrice + addOnsTotal + packagePrice+hourRate, [basePrice, addOnsTotal,packagePrice,hourRate]);
+  const finalTotal = useMemo(() => basePrice + addOnsTotal + packagePrice+hourRate +collectionPickupAmount, [basePrice, addOnsTotal,packagePrice,hourRate,collectionPickupAmount]);
 
   // Calculate discount (25% of base price)
   const discount = useMemo(() => basePrice * currentDiscount, [basePrice,currentDiscount]);
@@ -252,7 +254,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
       dropoffDate:values.dropoffDate?.toISOString(),
       dropoffTime:values.dropoffTime?.toISOString(),
       totalPrice: finalTotal,
-      isPaid: isPayNow,
+      isPaid: false,
       selectedPackage:selectedPackage,
       createdAt: new Date().toISOString(),
       selectedAddOns: selectedAddOnsList,
@@ -372,6 +374,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
   
         if (emailResponse.ok) {
           toast.success("Booking successfully added and confirmation email sent!");
+          
         } else {
           toast.error("Booking added, but failed to send confirmation email.");
         }
@@ -642,7 +645,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
            
 
               <BookingSummary
-                
+                collectionPickupAmount={collectionPickupAmount}
                 car={car}
         values={values}
         basePrice={basePrice}

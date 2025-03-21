@@ -24,6 +24,7 @@ import moment from "moment";
 import axios from "axios";
 import DriverDetailsForm from "@/components/BookingModal/DriverDetailsForm";
 import { v4 as uuidv4 } from 'uuid';
+import { ArrowLeft } from "lucide-react";
 type CheckoutSession = {
   checkoutMode: string;
   merchant: string;
@@ -76,6 +77,9 @@ const AdditionalFeaturesModal: React.FC = () => {
   const [currentDiscount, setCurrentDiscount] = useState<number>(0);
   const [sessionId, setSessionID] = useState<CheckoutSession | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [uuid,setUuid]=useState<string | null>(null)
+  const [orderId, setOrderId] = useState<string | null>(null)
+  const [verifiedLoader,setVerifiedLoader]=useState<boolean>(false)
 
   // Fetch car details
   useEffect(() => {
@@ -223,11 +227,11 @@ const packagePrice = useMemo(() => {
     () => (extraHours > 0 ? extraHours * 20 : 0),
     [extraHours]
   );
-
+  const collectionPickupAmount = (values.location == "Ras Al Khaimah City Office" && values.dropoffLocation == "Ras Al Khaimah City Office") || (values.location == "Ras Al Khaimah City Office" && !values.dropoffLocation) ? 0 : 80
   // Calculate final total
   const finalTotal = useMemo(
-    () => basePrice + addOnsTotal + packagePrice + hourRate,
-    [basePrice, addOnsTotal, packagePrice, hourRate]
+    () => basePrice + addOnsTotal + packagePrice + hourRate + collectionPickupAmount,
+    [basePrice, addOnsTotal, packagePrice, hourRate,collectionPickupAmount]
   );
 
   // Calculate discount
@@ -306,24 +310,25 @@ const packagePrice = useMemo(() => {
 
   
   const verifyPayment = async () => {
+    setVerifiedLoader(true)
     try {
       const response = await axios.get(
         `/api/check-payment/${params.get("uuid")}`
       );
-      console.log(response.data);
       const status = response.data.status;
       if (status === "CAPTURED") {
-        toast.success("Payment Successfully Added!");
         if (params.get("orderId")) {
           updateBookingToPaid(params?.get("orderId") || "")
         }
-        router.push("/fleet")
+        router.replace(`/payment-verification?status=success&oderId=${params?.get("orderId")}`);
       } else {
-        toast.error("Payment Failed!");
+        router.replace(`/payment-verification?status=failed&oderId=${params?.get("orderId")}`);
       }
     } catch (err) {
-      toast.error("Error while verify payment!");
+      router.replace(`/payment-verification?status=failed&oderId=${params?.get("orderId")}`);
       console.log(err);
+    } finally {
+      setVerifiedLoader(false)
     }
   };
 
@@ -333,76 +338,45 @@ const packagePrice = useMemo(() => {
     }
   }, [params.get("orderId")]);
   // Handle booking
-  const handleBooking = 
-    async (isPayNow: boolean) => {
-       // Generate auto-increment ID
-  const generateAutoIncrementId = async () => {
-    const counterRef = doc(db, "metadata", "counter");
-
-    return await runTransaction(db, async (transaction) => {
-      const counterDoc = await transaction.get(counterRef);
-      let newId = 1;
-
-      if (counterDoc.exists()) {
-        const currentValue = counterDoc.data().value;
-        newId = currentValue + 1;
-        transaction.update(counterRef, { value: newId });
-      } else {
-        transaction.set(counterRef, { value: newId });
-      }
-      return newId;
-    });
-  };
-      setApiLoader(true);
+  const handleBooking = async (isPayNow: boolean) => {
+    const uuid = uuidv4();
+    setUuid(uuid)
+    // Generate auto-increment ID
+    const generateAutoIncrementId = async () => {
+      const counterRef = doc(db, "metadata", "counter");
       try {
-        const bookingId = await generateAutoIncrementId();
-        const uuid =uuidv4()
-        const selectedAddOnsList = addons.filter(
-          (addon) => selectedAddOns[addon.id]
-        );
-
-        const bookingDetails = {
-          id: bookingId,
-          user: user?.uid
-            ? doc(db, "users", user.uid)
-            : {
-                displayName: driverDetails.displayName,
-                phone: driverDetails.contactNumber,
-                email: driverDetails.email,
-                nationality: driverDetails.nationality,
-              },
-          car: doc(db, "cars", car?.id || ""),
-          location: values.location,
-          dropoffLocation: values.dropoffLocation,
-          pickupDate: values.pickupDate?.toISOString(),
-          pickupTime: values.pickupTime?.toISOString(),
-          dropoffDate: values.dropoffDate?.toISOString(),
-          dropoffTime: values.dropoffTime?.toISOString(),
-          totalPrice: finalTotal,
-          isPaid: false,
-          selectedPackage: selectedPackage,
-          createdAt: new Date().toISOString(),
-          selectedAddOns: selectedAddOnsList,
-          status: 1,
-          numberOfDays: numberOfDays,
-          uuid:uuid
-        };
-        if (user) {
-          await setDoc(doc(db, "users", user.uid), {
-            displayName: driverDetails.displayName,
-            phone: driverDetails.contactNumber,
-            email: driverDetails.email,
-            nationality: driverDetails.nationality,
-            createdAt: new Date(),
-          });
-        }
-          await setDoc(
-            doc(db, "bookings", bookingId.toString()),
-            bookingDetails
-          );
-   
-        
-
+        return await runTransaction(db, async (transaction) => {
+          const counterDoc = await transaction.get(counterRef);
+          let newId = 1;
+  
+          if (counterDoc.exists()) {
+            const currentValue = counterDoc.data().value;
+            newId = currentValue + 1;
+            transaction.update(counterRef, { value: newId });
+          } else {
+            transaction.set(counterRef, { value: newId });
+          }
+          return newId;
+        });
+      } catch (error) {
+        console.error("Error generating auto-increment ID:", error);
+        throw new Error("Failed to generate booking ID.");
+      }
+    };
+  
+    // Save booking details to Firestore
+    const saveBookingToFirestore = async (bookingDetails: any) => {
+      try {
+        await setDoc(doc(db, "bookings", bookingDetails.id.toString()), bookingDetails);
+      } catch (error) {
+        console.error("Error saving booking to Firestore:", error);
+        throw new Error("Failed to save booking details.");
+      }
+    };
+  
+    // Send confirmation email
+    const sendConfirmationEmail = async (bookingDetails: any, isPayNow: boolean) => {
+      try {
         const emailResponse = await fetch("/api/send-email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -410,117 +384,148 @@ const packagePrice = useMemo(() => {
             to: driverDetails.email,
             subject: "Your Booking Confirmation",
             text: `Thank you for your booking! Here are your details:
-            Booking ID: ${bookingId}
-            Car: ${car?.name}
-            
-          `,
-        
+            Booking ID: ${bookingDetails.id}
+            Car: ${car?.name}`,
             html: `
             <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking Confirmation</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
-</head>
-<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; line-height: 1.6; margin: 0; padding: 0;">
-  <div style="max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); overflow: hidden;">
-    <!-- Header -->
-    <div style="background-color: #dbeafe; color: #045A85; padding: 20px; text-align: center;">
-      <h1 style="font-size: 24px; margin: 0;">Booking Confirmation</h1>
-    </div>
-
-    <!-- Body -->
-    <div style="padding: 20px;">
-      <h2 style="font-size: 20px; margin-bottom: 15px; color: #045A85; text-align: center;">Thank you for your booking! 🎉</h2>
-      <p style="margin-bottom: 15px;">Your booking has been confirmed. Below are the details of your reservation:</p>
-
-      <!-- Booking ID -->
-      <div style="background-color: #dbeafe; color: #045A85; padding: 15px; border-radius: 4px; text-align: center; margin-bottom: 20px; font-weight: bold; border: 1px solid #045A85;">
-        <strong>Booking ID:</strong> ${bookingDetails.id}
-      </div>
-
-      <!-- Booking Details -->
-      <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        <ul style="list-style: none; padding: 0;">
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 140px; color: #555;">Car:</strong> ${car?.name}
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-          <strong style="display: inline-block; width: 140px; color: #555;">UUID:</strong> ${uuid}
-        </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 140px; color: #555;">Pickup Date & Time:</strong>
-            ${moment(bookingDetails.pickupDate).format("ddd, DD, MM, YYYY")} | ${moment(bookingDetails.pickupTime).format("hh:mm A")}
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 140px; color: #555;">Dropoff Date & Time:</strong>
-            ${moment(bookingDetails.dropoffDate).format("ddd, DD, MM, YYYY")} | ${moment(bookingDetails.dropoffTime).format("hh:mm A")}
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 140px; color: #555;">Pickup Location:</strong> ${bookingDetails.location}
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 140px; color: #555;">Dropoff Location:</strong> ${bookingDetails.dropoffLocation || bookingDetails.location}
-          </li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 140px; color: #555;">Selected Package:</strong> ${bookingDetails?.selectedPackage?.name}
-          </li>
-          <!-- Conditional Rendering for Total Price or Payable Upon Pickup -->
-          <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-            <strong style="display: inline-block; width: 140px; color: #555;">
-              ${!isPayNow ? 'Total Price' : 'Payable upon pickup'}:
-            </strong> AED ${(!isPayNow ? bookingDetails.totalPrice : discountedTotal).toFixed(2)}
-          </li>
-        </ul>
-      </div>
-
-      <p style="text-align: center;">If you have any questions, feel free to contact us.</p>
-    </div>
-
-    <!-- Footer -->
-    <div style="background-color: #f1f1f1; padding: 10px; text-align: center; font-size: 14px; color: #666;">
-      <p>&copy; 2010 Al Marjan. All rights reserved.</p>
-    </div>
-  </div>
-</body>
-</html>
-
-            `
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Booking Confirmation</title>
+              <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+            </head>
+            <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; line-height: 1.6; margin: 0; padding: 0;">
+              <div style="max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                <!-- Header -->
+                <div style="background-color: #dbeafe; color: #045A85; padding: 20px; text-align: center;">
+                  <h1 style="font-size: 24px; margin: 0;">Booking Confirmation</h1>
+                </div>
+  
+                <!-- Body -->
+                <div style="padding: 20px;">
+                  <h2 style="font-size: 20px; margin-bottom: 15px; color: #045A85; text-align: center;">Thank you for your booking! 🎉</h2>
+                  <p style="margin-bottom: 15px;">Your booking has been confirmed. Below are the details of your reservation:</p>
+  
+                  <!-- Booking ID -->
+                  <div style="background-color: #dbeafe; color: #045A85; padding: 15px; border-radius: 4px; text-align: center; margin-bottom: 20px; font-weight: bold; border: 1px solid #045A85;">
+                    <strong>Booking ID:</strong> ${bookingDetails.id}
+                  </div>
+  
+                  <!-- Booking Details -->
+                  <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <ul style="list-style: none; padding: 0;">
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Car:</strong> ${car?.name}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">UUID:</strong> ${bookingDetails.uuid}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Pickup Date & Time:</strong>
+                        ${moment(bookingDetails.pickupDate).format("ddd, DD, MM, YYYY")} | ${moment(bookingDetails.pickupTime).format("hh:mm A")}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Dropoff Date & Time:</strong>
+                        ${moment(bookingDetails.dropoffDate).format("ddd, DD, MM, YYYY")} | ${moment(bookingDetails.dropoffTime).format("hh:mm A")}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Pickup Location:</strong> ${bookingDetails.location}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Dropoff Location:</strong> ${bookingDetails.dropoffLocation || bookingDetails.location}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">Selected Package:</strong> ${bookingDetails?.selectedPackage?.name}
+                      </li>
+                      <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <strong style="display: inline-block; width: 140px; color: #555;">
+                          ${!isPayNow ? 'Total Price' : 'Payable upon pickup'}:
+                        </strong> AED ${(!isPayNow ? bookingDetails.totalPrice : discountedTotal).toFixed(2)}
+                      </li>
+                    </ul>
+                  </div>
+  
+                  <p style="text-align: center;">If you have any questions, feel free to contact us.</p>
+                </div>
+  
+                <!-- Footer -->
+                <div style="background-color: #f1f1f1; padding: 10px; text-align: center; font-size: 14px; color: #666;">
+                  <p>&copy; 2010 Al Marjan. All rights reserved.</p>
+                </div>
+              </div>
+            </body>
+            </html>
+            `,
           }),
         });
   
-        if (emailResponse.ok) {
+        if (!emailResponse.ok) {
+          throw new Error("Failed to send email.");
+        }
+  
+        if (!isPayNow) {
           toast.success("Booking successfully added and confirmation email sent!");
-         
         } else {
-          toast.error("Booking added, but failed to send confirmation email.");
-       
+          toast.success("Don't close the window/tab, you will be redirected to the payment page!", { duration: 4000 });
         }
-
-
-        console.log('Checkout ID',bookingId)
-        
-        if (isPayNow) {
-          nextStep();
-          handleCheckout(
-            discountedTotal,
-            bookingId,
-            car ? car?.id : "",
-            uuid,
-          );
-        } else {
-          router.push("/fleet")
-        }
-        
-      } catch (error) {
-        console.error("Error adding booking to Firestore", error);
-        toast.error("Error adding booking to Firestore");
-      } finally {
-        setApiLoader(false);
+      } catch (emailError) {
+        console.error("Error sending email:", emailError);
+        throw new Error("Failed to send confirmation email.");
       }
+    };
+  
+    // Main function logic
+    setApiLoader(true);
+    try {
+      const bookingId = await generateAutoIncrementId();
+      setOrderId(bookingId?.toString())
+  
+      const selectedAddOnsList = addons.filter((addon) => selectedAddOns[addon.id]);
+  
+      const bookingDetails = {
+        id: bookingId,
+        user: user?.uid
+          ? doc(db, "users", user.uid)
+          : {
+              displayName: driverDetails.displayName,
+              phone: driverDetails.contactNumber,
+              email: driverDetails.email,
+              nationality: driverDetails.nationality,
+            },
+        car: doc(db, "cars", car?.id || ""),
+        location: values.location,
+        dropoffLocation: values.dropoffLocation,
+        pickupDate: values.pickupDate?.toISOString(),
+        pickupTime: values.pickupTime?.toISOString(),
+        dropoffDate: values.dropoffDate?.toISOString(),
+        dropoffTime: values.dropoffTime?.toISOString(),
+        totalPrice: finalTotal,
+        isPaid: false,
+        selectedPackage: selectedPackage,
+        createdAt: new Date().toISOString(),
+        selectedAddOns: selectedAddOnsList,
+        status: 1,
+        numberOfDays: numberOfDays,
+        uuid: uuid,
+      };
+  
+      await saveBookingToFirestore(bookingDetails);
+      await sendConfirmationEmail(bookingDetails, isPayNow);
+  
+      if (isPayNow) {
+        nextStep();
+        await handleCheckout(discountedTotal, bookingId, car?.id || "", uuid);
+      } else {
+        router.push("/fleet");
+      }
+    } catch (error) {
+      console.error("Error during booking process:", error);
+      toast.error(`Error: ${error instanceof Error ? error.message : "An unexpected error occurred."}`);
+    } finally {
+      setApiLoader(false);
     }
+  };
 
 
   // Step navigation
@@ -535,13 +540,23 @@ const packagePrice = useMemo(() => {
 
   return (
     <div className=" flex overflow-scroll  fixed inset-0 bg-white  justify-center ">
+      {
+        verifiedLoader &&    <div className="fixed indent-0 flex bg-black/20 h-screen w-screen justify-center items-center">
+        <span className="text-primary text-4xl">Verifying....</span>
+        </div>
+      }
+   
       {carApiLoader ? (
         <div className=" flex justify-center items-center">
-          <span>Loading....</span>
+
+          {!verifiedLoader && <span>Loading....</span>}
+     
         </div>
       ) : !car ? (
         <div className=" flex justify-center items-center">Car not found!</div>
-      ) : (
+        ) :
+          
+          (
         <div className="p-2 md:p-8">
               {/* Progress Bar */}
               
@@ -722,7 +737,8 @@ const packagePrice = useMemo(() => {
           {/* Step 5: Summary and Payment */}
           {currentStep === 5 && (
             <div>
-              <BookingSummary
+                  <BookingSummary
+                  collectionPickupAmount={collectionPickupAmount}
                 car={car}
                 values={values}
                 basePrice={basePrice}
@@ -736,7 +752,9 @@ const packagePrice = useMemo(() => {
                 discountedTotal={discountedTotal}
                 hourRate={hourRate}
                 extraHours={extraHours}
-              />
+                  />
+                  
+              
 
               <RefundableDeposit />
               <div className="flex flex-col md:flex-row justify-between gap-4 pb-10">
@@ -779,9 +797,20 @@ const packagePrice = useMemo(() => {
 
           {/* Step 5  Payment */}
           {currentStep === 6 && (
-                <div>
-                  
-                  <div id="embed-target">
+                <div className="w-full ">
+                  {/* <h1 className="bg-secondary w-full text-white px-2 mb-4">UUID : { orderId}</h1> */}
+            <button
+                   className="text-gray-600 hover:text-primary transition-colors duration-200 flex items-center gap-1 group"
+                    onClick={() => {
+         
+                     router.replace(`/fleet/${slug}?orderId=${orderId}&uuid=${uuid}`)
+                    }
+                    }
+          >
+            <ArrowLeft className="group-hover:-translate-x-1 transition-transform duration-200" size={20} />
+            <span>Pay Later</span>
+          </button>
+                  <div className="w-full" id="embed-target">
               </div>
             </div>
           )}

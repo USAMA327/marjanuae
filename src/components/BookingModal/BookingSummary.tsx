@@ -17,7 +17,8 @@ interface SummaryProps {
   discountedTotal: number;
   discountPercentage: number;
   hourRate: number;
-  extraHours:number
+  extraHours: number;
+  collectionPickupAmount: number;
 }
 
 const Summary: React.FC<SummaryProps> = ({
@@ -34,6 +35,7 @@ const Summary: React.FC<SummaryProps> = ({
   extraHours,
   discountedTotal,
   discountPercentage,
+  collectionPickupAmount,
 }) => {
 
   const calculateDiscountedPrice = (pkg: Package | null | undefined) => {
@@ -176,7 +178,22 @@ const Summary: React.FC<SummaryProps> = ({
   label="Hourly Charge"
   value={`AED ${hourRate.toFixed(2)}`}
   formula={` ${extraHours} hours x 20 AED `}
-/>
+            />
+            
+
+          </>
+        }
+
+        {
+          collectionPickupAmount > 0 &&
+          <>
+            <hr className="border-gray-200" />
+            
+            <SummaryItem
+              label="Collection / Pickup Amount"
+              value={`AED ${collectionPickupAmount.toFixed(2)}`}
+              formula={`AED ${collectionPickupAmount.toFixed(2)}`}
+            />
           </>
         }
         <hr className="border-gray-200" />
