@@ -541,7 +541,7 @@ const packagePrice = useMemo(() => {
   return (
     <div className=" flex overflow-scroll  fixed inset-0 bg-white  justify-center ">
       {
-        verifiedLoader &&    <div className="fixed indent-0 flex bg-black/20 h-screen w-screen justify-center items-center">
+        verifiedLoader &&    <div className="fixed indent-0 flex bg-black h-screen w-screen justify-center items-center">
         <span className="text-primary text-4xl">Verifying....</span>
         </div>
       }
