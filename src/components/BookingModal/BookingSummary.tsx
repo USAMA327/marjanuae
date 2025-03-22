@@ -190,7 +190,7 @@ const Summary: React.FC<SummaryProps> = ({
             <hr className="border-gray-200" />
             
             <SummaryItem
-              label="Collection / Pickup Amount"
+              label="Delivery & Collection Charges"
               value={`AED ${collectionPickupAmount.toFixed(2)}`}
               formula={`AED ${collectionPickupAmount.toFixed(2)}`}
             />

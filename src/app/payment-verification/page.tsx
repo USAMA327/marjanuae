@@ -21,10 +21,10 @@ const PaymentVerification: React.FC = () => {
 
   useEffect(() => {
     if (status === "success") {
-      setMessage("Your booking has been saved. A confirmation email has been sent.")
+      setMessage("Your booking has been received. A confirmation email has been sent.")
     } else {
       setMessage(
-        "Your booking has been saved, but payment was not received due to a technical issue. You can pay upon car pickup.",
+        "Your booking has been received, but payment was not received due to a technical issue. You can pay upon car pickup.",
       )
     }
   }, [status])
@@ -46,9 +46,7 @@ const PaymentVerification: React.FC = () => {
             <span>Back</span>
           </button>
 
-          <div className="px-4 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
-            {status === "success" ? "Completed" : "Pending"}
-          </div>
+         
         </div>
 
         <div className="text-center mb-8">
@@ -74,7 +72,7 @@ const PaymentVerification: React.FC = () => {
                     transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
                     className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center"
                   >
-                    <CheckCircle2 className="text-green-600" size={40} />
+                    <CheckCircle2 className="text-green-700" size={40} />
                   </motion.div>
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -109,10 +107,10 @@ const PaymentVerification: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.3 }}
-            className="p-4 bg-blue-50 border border-blue-100 text-primary rounded-lg flex items-start gap-3"
+            className="p-4 bg-green-50 border border-green-100 text-primary rounded-lg flex items-start gap-3"
           >
-            <Info className="text-primary mt-0.5 flex-shrink-0" size={18} />
-            <p className="text-sm text-blue-700">{message}</p>
+            <Info className="text-green-700 mt-0.5 flex-shrink-0" size={18} />
+            <p className="text-sm text-green-700">{message}</p>
           </motion.div>
         )}
 
