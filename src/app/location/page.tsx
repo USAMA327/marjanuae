@@ -68,8 +68,8 @@ const Location = () => {
               src={location.img}
               alt={location.name}
               width={400}
-              height={250}
-              className="w-full h-40 object-cover rounded-sm shadow-lg"
+              height={400}
+              className=" object-cover max-h-52 rounded-sm shadow-lg"
             />
             <h2 className="text-xl font-semibold mt-3 pb-1">{location.name}</h2>
             <hr className="py-1" />
