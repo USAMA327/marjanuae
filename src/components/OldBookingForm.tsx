@@ -329,7 +329,7 @@ const OldBookingForm = ({
                     dateFormat="hh:mm aa"
                     className="w-full p-3 border-l border-gray-300 focus:outline-none"
                     placeholderText="Time"
-                    minTime={minTime}
+                    minTime={getMinTime(formik.values.pickupDate)}
                     maxTime={maxTime}
                   />
                 </div>

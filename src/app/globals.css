@@ -321,6 +321,7 @@ h2.react-datepicker__current-month {
   position: relative;
   background: white;
   border-bottom-right-radius: 0.3rem;
+  
 }
 .react-datepicker__time-container
   .react-datepicker__time
@@ -352,6 +353,7 @@ h2.react-datepicker__current-month {
   height: 30px;
   padding: 5px 10px;
   white-space: nowrap;
+  
 }
 .react-datepicker__time-container
   .react-datepicker__time
@@ -392,6 +394,7 @@ h2.react-datepicker__current-month {
   li.react-datepicker__time-list-item--disabled:hover {
   cursor: default;
   background-color: transparent;
+  display: none;
 }
 
 .react-datepicker__week-number {

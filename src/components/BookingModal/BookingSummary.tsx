@@ -29,12 +29,9 @@ const Summary: React.FC<SummaryProps> = ({
   addons,
   selectedAddOns,
   selectedPackage,
-  discount,
   finalTotal,
   hourRate,
   extraHours,
-  discountedTotal,
-  discountPercentage,
   collectionPickupAmount,
 }) => {
 
