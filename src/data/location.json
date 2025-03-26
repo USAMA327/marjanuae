@@ -11,7 +11,7 @@
     {
       "img":"/locations/airport.jpg" , 
       "name": "Ras Al Khaimah-Airport",
-      "openingHours": "24 hours (Delivery/Collection only)",
+      "openingHours": "Delivery/Collection only",
       "address": "Arrival Parking Area, RAK INTL. Airport",
       "phone": "+971 50 599 6321",
       "latitude": 25.6133,
@@ -20,7 +20,7 @@
     {
       "img":"/locations/island.jpg" , 
       "name": "Ras Al Khaimah-Al Marjan Island",
-      "openingHours": "24 Hours (Delivery/Collection Only)",
+      "openingHours": "Delivery/Collection Only",
       "address": "Al Marjan Island Bay (any hotel)",
       "phone": "+971 50 599 6321",
       "latitude": 25.6739,
