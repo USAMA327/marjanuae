@@ -11,7 +11,7 @@ import Mitsubishi from '../../public/logo/mitsubishi.png'
 import Renault from '../../public/logo/renault.png'
 export default function BrandSlider() {
   return (
-    <div className="bg-slate-100 py-4 overflow-hidden">
+    <div className="bg-slate-100 py-4 overflow-hidden mt-3">
       {/* Slider Wrapper */}
       <div className="flex whitespace-nowrap animate-scroll">
         {/* First Set of Logos */}
