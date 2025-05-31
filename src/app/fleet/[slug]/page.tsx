@@ -146,16 +146,26 @@ const AdditionalFeaturesModal: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  // Calculate number of days
   const numberOfDays = useMemo(() => {
-    if (values.pickupDate && values.dropoffDate) {
-      return Math.ceil(
-        (values.dropoffDate.getTime() - values.pickupDate.getTime()) /
-          (1000 * 3600 * 24)
-      );
+    if (!values.pickupDate || !values.dropoffDate || !values.pickupTime || !values.dropoffTime) return 0;
+  
+    // Calculate full days difference between dates (ignoring time)
+    const dateDiff = Math.floor(
+      (values.dropoffDate.getTime() - values.pickupDate.getTime()) / 
+      (1000 * 3600 * 24)
+    );
+  
+    // Convert times to minutes since midnight for easier comparison
+    const pickupMinutes = values.pickupTime.getHours() * 60 + values.pickupTime.getMinutes();
+    const dropoffMinutes = values.dropoffTime.getHours() * 60 + values.dropoffTime.getMinutes();
+  
+    // If dropoff time is later than pickup time, add one day
+    if (dropoffMinutes > pickupMinutes) {
+      return dateDiff + 1;
     }
-    return 0;
-  }, [values.pickupDate, values.dropoffDate]);
+  
+    return dateDiff;
+  }, [values.pickupDate, values.dropoffDate, values.pickupTime, values.dropoffTime]);
 
   // Calculate base price
   const basePrice = useMemo(
@@ -213,25 +223,14 @@ const packagePrice = useMemo(() => {
   // Multiply the discounted price by the number of days
   return discountedPrice * numberOfDays;
 }, [selectedPackage, numberOfDays, car?.category]); // Add car.category as a dependency
-  // Calculate extra hours
-  const extraHours = useMemo(() => {
-    if (values.pickupTime && values.dropoffTime) {
-      return (
-        moment(values.dropoffTime).get("h") - moment(values.pickupTime).get("h")
-      );
-    }
-    return 0;
-  }, [values.pickupTime, values.dropoffTime]);
+  
 
-  const hourRate = useMemo(
-    () => (extraHours > 0 ? extraHours * 20 : 0),
-    [extraHours]
-  );
+ 
   const collectionPickupAmount = (values.location == "Ras Al Khaimah City Office" && values.dropoffLocation == "Ras Al Khaimah City Office") || (values.location == "Ras Al Khaimah City Office" && !values.dropoffLocation) ? 0 : 80
   // Calculate final total
   const finalTotal = useMemo(
-    () => basePrice + addOnsTotal + packagePrice + hourRate + collectionPickupAmount,
-    [basePrice, addOnsTotal, packagePrice, hourRate,collectionPickupAmount]
+    () => basePrice + addOnsTotal + packagePrice  + collectionPickupAmount,
+    [basePrice, addOnsTotal, packagePrice,collectionPickupAmount]
   );
 
   // Calculate discount
@@ -750,8 +749,7 @@ const packagePrice = useMemo(() => {
                 discountPercentage={currentDiscount * 100}
                 finalTotal={finalTotal}
                 discountedTotal={discountedTotal}
-                hourRate={hourRate}
-                extraHours={extraHours}
+     
                   />
                   
               

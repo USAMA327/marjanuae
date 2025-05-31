@@ -89,16 +89,27 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
 
  
 
+  
 
-  // Calculate number of days
   const numberOfDays = useMemo(() => {
     if (values.pickupDate && values.dropoffDate) {
-      return Math.ceil(
+      const baseDays = Math.ceil(
         (values.dropoffDate.getTime() - values.pickupDate.getTime()) / (1000 * 3600 * 24)
       );
+  
+      const pickup = moment(values.pickupTime);
+      const dropoff = moment(values.dropoffTime);
+  
+      // If dropoff time is after pickup time, add 1 more day
+      if (dropoff.isAfter(pickup)) {
+        return baseDays + 1;
+      }
+  
+      return baseDays;
     }
     return 0;
-  }, [values.pickupDate, values.dropoffDate]);
+  }, [values.pickupDate, values.dropoffDate, values.pickupTime, values.dropoffTime]);
+  
 
 
   const collectionPickupAmount = (values.location == "Ras Al Khaimah City Office" && values.dropoffLocation == "Ras Al Khaimah City Office") || (values.location == "Ras Al Khaimah City Office" && !values.dropoffLocation) ? 0 : 80
@@ -151,12 +162,10 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
     return discountedPrice * numberOfDays;
   }, [selectedPackage, numberOfDays, car?.category]); // Add car.category as a dependency
 
-  const ExtraHours = moment(values.dropoffTime).get("h") -  moment(values.pickupTime).get("h")
-  
-  const hourRate = useMemo(() =>ExtraHours > 0 ? (moment(values.dropoffTime).get("h") -  moment(values.pickupTime).get("h"))*20 :0,[basePrice,ExtraHours])
+
 
   // Calculate final total
-  const finalTotal = useMemo(() => basePrice + addOnsTotal + packagePrice+hourRate +collectionPickupAmount, [basePrice, addOnsTotal,packagePrice,hourRate,collectionPickupAmount]);
+  const finalTotal = useMemo(() => basePrice + addOnsTotal + packagePrice+ +collectionPickupAmount, [basePrice, addOnsTotal,packagePrice,collectionPickupAmount]);
 
   // Calculate discount (25% of base price)
   const discount = useMemo(() => basePrice * currentDiscount, [basePrice,currentDiscount]);
@@ -657,8 +666,7 @@ const AdditionalFeaturesModal: React.FC<ModalProps> = ({ car, onClose }) => {
                 discountPercentage={currentDiscount *100}
         finalTotal={finalTotal}
                 discountedTotal={discountedTotal}
-                hourRate={hourRate}
-                extraHours={ExtraHours}
+        
             
               />
 
