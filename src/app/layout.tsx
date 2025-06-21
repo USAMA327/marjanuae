@@ -12,6 +12,7 @@ import { Suspense } from "react";
 import { BookingProvider } from "@/context/BookingContext";
 import { Toaster } from "react-hot-toast";
 import NoInternet from "@/components/NoInternet";
+import Script from "next/script";
 const poppinsSans = Poppins({
   variable: "--font-poppins-sans",
   subsets: ["latin"],
@@ -66,6 +67,21 @@ export default function RootLayout({
   return (
     <>
       <html lang="en">
+      <head>
+        {/* Google Tag: gtag.js */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17021713576"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17021713576');
+          `}
+        </Script>
+      </head>
 
         <body
           className={`${poppinsSans.variable} ${poppinsMono.variable} ${elMessiriSans.variable} ${elMessiriMono.variable} antialiased`}
