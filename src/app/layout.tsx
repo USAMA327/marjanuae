@@ -81,7 +81,7 @@ export default function RootLayout({
         >
 
           <Suspense fallback={null}>
-          <GoogleTagManager gtmId="AW-17021713576" /> 
+          <GoogleTagManager gtmId="GTM-528KKWDH" /> 
             <Analytics />
             <SpeedInsights />
             <AuthProvider>
