@@ -80,8 +80,9 @@ export default function RootLayout({
           className={`${poppinsSans.variable} ${poppinsMono.variable} ${elMessiriSans.variable} ${elMessiriMono.variable} antialiased`}
         >
 
-          <Suspense fallback={null}>
+          <GoogleTagManager gtmId="AW-17021713576" /> 
           <GoogleTagManager gtmId="GTM-528KKWDH" /> 
+          <Suspense fallback={null}>
             <Analytics />
             <SpeedInsights />
             <AuthProvider>
