@@ -42,16 +42,21 @@ export const metadata: Metadata = {
   description:
     "Explore a premium selection of rental cars at AL Marjan Car Rental UAE. We offer luxury, economy, and SUV rentals with flexible pricing and exceptional customer service. Rent a car in Dubai and across the UAE with ease.",
   keywords: [
-    "Car rental UAE",
-    "Rent a car Dubai",
-    "Luxury car rental",
-    "SUV rental Dubai",
-    "Economy car rental UAE",
-    "Best car rental service in Dubai",
+    "car rental",
+    "car rental ras al khaimah",
+    "rent a car",
+    "car booking service",
+    "car hire",
+    "car rental ras al khaimah",
+    "Rent a car ras al khaimah",
+    "Luxury car ras al khaimah",
+    "SUV rental ras al khaimah",
+    "Economy car rental ras al khaimah",
+    "Best car rental service in ras al khaimah",
   ],
   authors: [{ name: "AL MARJAN RENT CARS" }],
   openGraph: {
-    title: "Home |AL Marjan Car Rental UAE",
+    title: "Home | AL Marjan Car Rental UAE",
     description:
       "Understand the terms and conditions for renting a car with AL MARJAN RENT CARS in UAE. Get details on payments, deposits, insurance, returns, and rental policies.",
     type: "website",
